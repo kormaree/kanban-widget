@@ -1,6 +1,7 @@
 import { http } from "./http";
+import type { Column } from "../types/column";
 
-export const get = async (boardId: string) => {
-  const res = await http.get(`/boards/${boardId}/columns`);
+export const getColumns = async (boardId: string): Promise<Column[]> => {
+  const res = await http.get<Column[]>(`/boards/${boardId}/columns`);
   return res.data;
 };
