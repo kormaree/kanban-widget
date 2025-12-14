@@ -1,17 +1,11 @@
 {
   "name": "kanban-widget",
-  "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "main": "./dist/kanban-widget.es.js",
   "types": "./dist/index.d.ts",
-  "style": "./dist/style.css",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "build": "vite build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.0.0",
@@ -33,16 +27,10 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.4"
+    "typescript-eslint": "^8.46.4",
+    "vite": "^7.2.7"
   },
   "files": [
     "dist"
-  ],
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    }
-  }
+  ]
 }
