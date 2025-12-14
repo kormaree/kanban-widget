@@ -1,4 +1,4 @@
-import { Column as ColumnType } from "../../../types";
+import type { Column as ColumnType } from "../../../types/column";
 
 export const Column = ({ column }: { column: ColumnType }) => {
   return (

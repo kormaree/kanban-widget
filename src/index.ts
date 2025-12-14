@@ -1,2 +1,1 @@
-export * from "//components/KanbanWidgetNode";
-export * from "./types";
+export * from "./components/KanbanWidgetNode/KanbanWidgetNode.tsx";

@@ -1,6 +1,11 @@
 import { Resizable } from "re-resizable";
+import type { ReactNode } from "react";
 
-export const ResizableContainer = ({ children }) => {
+interface ResizableContainerProps {
+  children: ReactNode;
+}
+
+export const ResizableContainer = ({ children }: ResizableContainerProps) => {
   return (
     <Resizable
       defaultSize={{ width: 800, height: 500 }}
