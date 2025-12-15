@@ -18,3 +18,7 @@
   padding: 12px;
   border-radius: 6px;
 }
+
+.nodrag {
+  pointer-events: auto;
+}
