@@ -8,10 +8,10 @@ export const KanbanBoard = ({ boardId }: { boardId: string }) => {
 
   useEffect(() => {
     loadBoard(boardId);
-  }, [boardId]);
+  }, [boardId, loadBoard]);
 
   return (
-    <div className="kanban-board">
+    <div className="kanban-board" style={{ height: "100%" }}>
       <Header />
       <ColumnsArea />
     </div>

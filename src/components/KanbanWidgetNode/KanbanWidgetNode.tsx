@@ -1,20 +1,16 @@
 import { NodeResizer } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
-
 import { KanbanBoard } from "../KanbanBoard/KanbanBoard";
 
 export function KanbanWidgetNode({ data, selected }: NodeProps) {
-  const { boardId, width, height } = data as {
-    boardId: string;
-    width?: number;
-    height?: number;
-  };
+  const { boardId } = data as { boardId: string };
 
   return (
     <div
+      className="kanban-node"
       style={{
-        width: width ?? 800,
-        height: height ?? 600,
+        width: "100%",
+        height: "100%",
         background: "white",
         borderRadius: 8,
         overflow: "hidden",
@@ -23,16 +19,12 @@ export function KanbanWidgetNode({ data, selected }: NodeProps) {
         flexDirection: "column",
       }}
     >
-      <NodeResizer isVisible={selected} minWidth={400} minHeight={300} />
-
-      <div className="drag-handle" style={{ height: 32, cursor: "grab" }}>
-        Kanban
-      </div>
-
-      <div className="nodrag" style={{ flex: 1 }}>
-        <KanbanBoard boardId={boardId} />
-      </div>
+      <NodeResizer
+        isVisible={selected}
+        minWidth={400}
+        minHeight={300}
+      />
+      <KanbanBoard boardId={boardId} />
     </div>
   );
 }
-
