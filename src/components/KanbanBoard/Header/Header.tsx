@@ -1,8 +1,6 @@
 export const Header = () => {
   return (
-    <header
-      className="kanban-header drag-handle"
-      style={{
+    <header style={{
         height: 32,
         display: "flex",
         alignItems: "center",
@@ -10,8 +8,7 @@ export const Header = () => {
         cursor: "grab",
         userSelect: "none",
         background: "#f3f4f6",
-      }}
-    >
+      }} className="drag-handle">
       <h2 style={{ fontSize: 14 }}>Kanban Board</h2>
     </header>
   );
