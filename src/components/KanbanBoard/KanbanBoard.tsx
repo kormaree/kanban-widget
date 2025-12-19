@@ -11,7 +11,7 @@ export const KanbanBoard = ({ boardId }: { boardId: string }) => {
   }, [boardId, loadBoard]);
 
   return (
-    <div className="kanban-board" style={{ height: "100%" }}>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%" }}>
       <Header />
       <ColumnsArea />
     </div>

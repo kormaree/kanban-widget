@@ -1,19 +1,30 @@
-import type { NodeProps } from "@xyflow/react";
 import { KanbanBoard } from "../KanbanBoard/KanbanBoard";
+import type { NodeProps } from "@xyflow/react";
 
-export function KanbanWidgetNode({ data }: NodeProps) {
-  const { boardId } = data as { boardId: string };
+type KanbanWidgetNodeData = {
+  boardId: string;
+};
+
+export function KanbanWidgetNode({
+  data,
+  selected,
+  dragging,
+}: NodeProps) {
+  const { boardId } = data as KanbanWidgetNodeData;
 
   return (
-    <div style={{
+    <div
+      style={{
         width: "100%",
         height: "100%",
-        background: "white",
+        background: selected ? "#f8f9ff" : "white",
         borderRadius: 8,
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-      }}>
+        opacity: dragging ? 0.8 : 1,
+      }}
+    >
       <KanbanBoard boardId={boardId} />
     </div>
   );
