@@ -1,5 +1,5 @@
 import { KanbanBoard } from "../KanbanBoard/KanbanBoard";
-import type { NodeProps } from "@xyflow/react";
+import { NodeResizer, type NodeProps } from "@xyflow/react";
 
 type KanbanWidgetNodeData = {
   boardId: string;
@@ -13,6 +13,14 @@ export function KanbanWidgetNode({
   const { boardId } = data as KanbanWidgetNodeData;
 
   return (
+    <>
+      <NodeResizer
+        handleStyle={{ width: 8, height: 8 }}
+        isVisible={selected}
+        minWidth={300}
+        minHeight={200}
+      />
+
     <div
       style={{
         width: "100%",
@@ -27,5 +35,6 @@ export function KanbanWidgetNode({
     >
       <KanbanBoard boardId={boardId} />
     </div>
+    </>
   );
 }

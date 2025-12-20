@@ -14,14 +14,14 @@
   "peerDependencies": {
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "zustand": "^4.5.0",
     "@xyflow/react": "^12.10.0"
   },
 
   "dependencies": {
     "@dnd-kit/core": "^6.0.0",
     "axios": "^1.13.2",
-    "re-resizable": "^6.9.0"
+    "re-resizable": "^6.9.0",
+    "zustand": "^4.5.0"
   },
 
   "devDependencies": {

@@ -10,7 +10,7 @@ export default defineConfig({
       fileName: () => "kanban-widget.es.js"
     },
     rollupOptions: {
-      external: ["react", "react-dom"]
+      external: ["react", "react-dom","@xyflow/react"]
     }
   }
 });
