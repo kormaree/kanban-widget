@@ -17,7 +17,7 @@ export const KanbanBoard = ({ boardId }: { boardId: string }) => {
       flexDirection: "column",
       width: "100%",
       height: "100%",
-      borderRadius: "20px", 
+      borderRadius: "20px",
      }}>
       <Header />
       <ColumnsArea />

@@ -17,19 +17,17 @@ export function KanbanWidgetNode({
       <NodeResizer
         handleStyle={{ width: 8, height: 8 }}
         isVisible={selected}
-        minWidth={300}
-        minHeight={200}
+        minWidth={800}
+        minHeight={1024}
       />
 
     <div
       style={{
         width: "100%",
         height: "100%",
-        background: selected ? "#f8f9ff" : "white",
-        borderRadius: 8,
+        background: selected ? "rgba(205, 221, 233, 0.3)" : "rgba(205, 221, 233, 0.3)",
+        borderRadius: 20,
         overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
         opacity: dragging ? 0.8 : 1,
       }}
     >

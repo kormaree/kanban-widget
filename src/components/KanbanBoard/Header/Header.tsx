@@ -64,7 +64,7 @@ export const Header = () => {
   return (
     <div style={{
       width: "100%",
-      height: "173px",
+      height: "203px",
       background: "#FFFFFF",
       margin: "0 auto",
       position: "relative",
