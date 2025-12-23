@@ -1,5 +1,8 @@
 export interface Column {
   id: string;
   title: string;
-  position: number;
+  display_order: number;
+  color: string;
+  board_id: string;
+  created_at: string;
 }
