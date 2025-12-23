@@ -63,20 +63,17 @@ export const Header = () => {
 
   return (
     <div style={{
-      width: "1620px",
+      width: "100%",
       height: "173px",
       background: "#FFFFFF",
-      borderRadius: "20px 20px 0 0",
       margin: "0 auto",
-      position: "relative"
-    }}>
-      {/* Текст проекта */}
+      position: "relative",
+      padding: "40px",
+      boxSizing: "border-box",
+    }} className="drag-handle">
       <div style={{
-        position: "absolute",
-        width: "448px",
+        width: "800px",
         height: "36px",
-        top: "40px",
-        left: "40px",
         fontFamily: "'Inter', sans-serif",
         fontWeight: 600,
         fontSize: "30px",
@@ -86,7 +83,6 @@ export const Header = () => {
         Проект "Пример проекта 1.0"
       </div>
       
-      {/* Иконки */}
       {icons.map((icon, index) => (
         <div
           key={index}
@@ -118,7 +114,6 @@ export const Header = () => {
         </div>
       ))}
       
-      {/* Подсказки */}
       {icons.map((icon, index) => {
         if (!positions[index].tooltipVisible) return null;
         
@@ -129,7 +124,7 @@ export const Header = () => {
               position: "absolute",
               width: `${icon.tooltipWidth}px`,
               height: "22px",
-              top: "124px",
+              top: "126px",
               left: `${positions[index].tooltipLeft}px`,
               fontFamily: "'Inter', sans-serif",
               fontWeight: 600,
