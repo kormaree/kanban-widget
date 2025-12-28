@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useBoard } from "../../../store/boardSelectors";
+
 import addIcon from './Icon/add-square-03.svg';
 import switchIcon from './Icon/arrow-switch-horizontal.svg';
 import calendarIcon from './Icon/calendar-02.svg';
@@ -7,6 +9,8 @@ import pencilIcon from './Icon/pencil-03.svg';
 
 export const Header = () => {
   const [activeIconIndex, setActiveIconIndex] = useState<number | null>(null);
+
+  const board = useBoard();
   
   const basePositions = [55, 107, 159, 211, 263];
   
@@ -80,7 +84,7 @@ export const Header = () => {
         lineHeight: "100%",
         color: "#000000"
       }}>
-        Проект "Пример проекта 1.0"
+        {board?.title ?? "Загрузка доски..."}
       </div>
       
       {icons.map((icon, index) => (

@@ -1,4 +1,5 @@
-import type { Column as ColumnType } from "../../../types/column";
+import type { Column as ColumnType } from "../../../types/board";
+import { TaskCard } from "./TaskCard";
 import filterIcon from './images/filter.svg';
 
 export const Column = ({ column }: { column: ColumnType }) => {
@@ -36,7 +37,7 @@ export const Column = ({ column }: { column: ColumnType }) => {
             fontSize: "22px",
             color: "#3789D5",
           }}>
-            0
+            {column.tasks.length}
           </span>
         </div>
         <button style={{
@@ -71,17 +72,19 @@ export const Column = ({ column }: { column: ColumnType }) => {
           фильтровать
       </button>
 
-      {/* Область для карточек */}
-      <div style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        gap: "12px",
-        overflowY: "auto",
-        padding: "4px",
-      }}>
-        {/* Здесь будут карточки задач */}
-        {/* Пока пустое пространство */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+          overflowY: "auto",
+          padding: "4px",
+        }}
+      >
+        {column.tasks.map((task) => (
+          <TaskCard key={task.id} task={task} />
+        ))}
       </div>
     </div>
   );
