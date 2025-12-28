@@ -1,30 +1,57 @@
 import type { Task } from "../../../types/board";
+import calendarIcon from './images/calendar.svg';
+import messageIcon from './images/message-alert-plus.svg';
+import barIconGreen from './images/bar-chart-square-green.svg';
+import barIconOrange from './images/bar-chart-square-orange.svg';
+import barIconRed from './images/bar-chart-square-red.svg';
+import dotsIcon from './images/dots3.svg';
 
 export const TaskCard = ({ task }: { task: Task }) => {
   return (
     <div
       style={{
+        fontFamily: "'Inter', sans-serif",
         backgroundColor: "#FFFFFF",
-        borderRadius: "16px",
-        padding: "16px",
+        borderRadius: "15px",
+        padding: "20px",
         display: "flex",
         flexDirection: "column",
-        gap: "12px",
+        gap: "25px",
         boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.06)",
         cursor: "pointer",
       }}
     >
-      <div
-        style={{
-          fontSize: "16px",
-          fontWeight: 600,
-          color: "#000000",
-          lineHeight: "120%",
-        }}
-      >
-        {task.title}
-      </div>
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}>
+        <div
+          style={{
+            fontSize: "18px",
+            fontWeight: 400,
+            color: "#000000",
+            lineHeight: "28px"
+          }}
+        >
+          {task.title}
+        </div>
 
+        <button style={{
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+        }}>
+          <img 
+            src={dotsIcon} 
+            style={{ 
+              width: "24px", 
+              height: "24px"
+            }} 
+          />
+        </button>
+      </div>
+      
       <div
         style={{
           display: "flex",
@@ -32,29 +59,107 @@ export const TaskCard = ({ task }: { task: Task }) => {
           alignItems: "center",
         }}
       >
-        <span
+        <div
           style={{
-            fontSize: "12px",
-            fontWeight: 600,
-            padding: "4px 8px",
-            borderRadius: "8px",
-            backgroundColor: getPriorityColor(task.priority),
-            color: "#FFFFFF",
-            textTransform: "uppercase",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            flexWrap: "wrap",
           }}
         >
-          {task.priority}
-        </span>
-
-        {task.deadline && (
           <span
             style={{
-              fontSize: "12px",
-              color: "#8D9EAD",
+              fontSize: "16px",
+              fontWeight: 500,
+              padding: "6px 7px",
+              borderRadius: "5px",
+              backgroundColor: getPriorityColor(task.priority),
+              color: getPriorityColorText(task.priority),
+              display: "flex",
+              alignItems: "center",
+              gap: "3px"
             }}
           >
-            {formatDate(task.deadline)}
+              <img 
+              src={getPriorityColorSVG(task.priority)} 
+              style={{
+                width: "19px", 
+                height: "19px"
+              }} 
+              />
+            {getPriorityName(task.priority)}
           </span>
+
+          {task.deadline && (
+            <span
+              style={{
+                fontSize: "16px",
+                fontWeight: 500,
+                padding: "6px 7px",
+                borderRadius: "5px",
+                backgroundColor: "#C7CAFF",
+                color: "#4260AA",
+                display: "flex",
+                alignItems: "center",
+                gap: "3px"
+              }}
+            >
+              <img 
+              src={calendarIcon} 
+              style={{ 
+                width: "19px", 
+                height: "19px"
+              }} 
+              />
+              {formatDate(task.deadline)}
+            </span>
+          )}
+
+          {task.comments[0] && (
+            <span
+              style={{
+                fontSize: "16px",
+                fontWeight: 500,
+                padding: "6px 7px",
+                borderRadius: "5px",
+                backgroundColor: "#D3D3D3",
+                color: "#4E5358",
+                display: "flex",
+                alignItems: "center",
+                gap: "3px"
+              }}
+            >
+              <img 
+              src={messageIcon} 
+              style={{ 
+                width: "19px", 
+                height: "19px"
+              }} 
+              />
+              {task.comments[0].content}
+            </span>
+          )}
+        </div>
+        
+        {task.assignees[0]?.name && (
+          <div
+            style={{
+              width: "26px",
+              height: "26px",
+              borderRadius: "50%",
+              backgroundColor: "#ADADAD",
+              color: "#FFFFFF",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
+              fontWeight: 700,
+              flexShrink: 0,
+            }}
+            title={task.assignees[0].name}
+          >
+            {getInitials(task.assignees[0].name)}
+          </div>
         )}
       </div>
     </div>
@@ -64,13 +169,52 @@ export const TaskCard = ({ task }: { task: Task }) => {
 const getPriorityColor = (priority: Task["priority"]) => {
   switch (priority) {
     case "high":
-      return "#EB5757";
+      return "#FFC7C7";
     case "medium":
-      return "#F2C94C";
+      return "#FFECBD";
     case "low":
-      return "#27AE60";
+      return "#CDFFC2";
     default:
       return "#8D9EAD";
+  }
+};
+
+const getPriorityColorText = (priority: Task["priority"]) => {
+  switch (priority) {
+    case "high":
+      return "#FF2F2F";
+    case "medium":
+      return "#E89300";
+    case "low":
+      return "#30C100";
+    default:
+      return "#8D9EAD";
+  }
+};
+
+const getPriorityName = (priority: Task["priority"]) => {
+  switch (priority) {
+    case "high":
+      return "высокий";
+    case "medium":
+      return "средний";
+    case "low":
+      return "низкий";
+    default:
+      return "нет приоритета";
+  }
+};
+
+const getPriorityColorSVG = (priority: Task["priority"]) => {
+  switch (priority) {
+    case "high":
+      return barIconRed;
+    case "medium":
+      return barIconOrange;
+    case "low":
+      return barIconGreen;
+    default:
+      return "нет приоритета";
   }
 };
 
@@ -79,4 +223,10 @@ const formatDate = (isoDate: string) => {
     day: "2-digit",
     month: "short",
   });
+};
+
+const getInitials = (name: string) => {
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
 };

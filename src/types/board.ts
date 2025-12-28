@@ -26,9 +26,14 @@ export interface Task {
   deadline: string;
   is_completed: boolean;
   color: string;
-  assignees: string[];
+  assignees: Assignee[];
   subtasks: Subtask[];
   comments: Comment[];
+}
+
+export interface Assignee {
+  id: string;
+  name: string;
 }
 
 export interface Subtask {

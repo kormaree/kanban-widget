@@ -59,11 +59,11 @@ export const Column = ({ column }: { column: ColumnType }) => {
           fontWeight: 500,
           display: "flex",
           alignItems: "flex-start",
-          padding: "0px"
+          padding: "0px",
+          marginBottom: '8px'
         }}>
           <img 
             src={filterIcon} 
-            alt="Фильтр" 
             style={{ 
               width: "20px", 
               height: "20px"
