@@ -13,7 +13,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
         fontFamily: "'Inter', sans-serif",
         backgroundColor: "#FFFFFF",
         borderRadius: "15px",
-        padding: "20px",
+        padding: "15px",
         display: "flex",
         flexDirection: "column",
         gap: "25px",
@@ -45,7 +45,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
           <img 
             src={dotsIcon} 
             style={{ 
-              width: "24px", 
+              width: "5px", 
               height: "24px"
             }} 
           />
@@ -144,8 +144,8 @@ export const TaskCard = ({ task }: { task: Task }) => {
         {task.assignees[0]?.name && (
           <div
             style={{
-              width: "26px",
-              height: "26px",
+              width: "30px",
+              height: "30px",
               borderRadius: "50%",
               backgroundColor: "#ADADAD",
               color: "#FFFFFF",
@@ -154,7 +154,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
               justifyContent: "center",
               fontSize: "12px",
               fontWeight: 700,
-              flexShrink: 0,
+              flexShrink: 0
             }}
             title={task.assignees[0].name}
           >
