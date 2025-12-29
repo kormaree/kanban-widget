@@ -1,8 +1,14 @@
 import type { Column as ColumnType } from "../../../types/board";
 import { TaskCard } from "./TaskCard";
 import filterIcon from './images/filter.svg';
+import { useDroppable } from "@dnd-kit/core";
 
 export const Column = ({ column }: { column: ColumnType }) => {
+
+  const { setNodeRef } = useDroppable({
+    id: column.id,
+  });
+
   return (
     <div style={{
       fontFamily: "'Inter', sans-serif",
@@ -73,16 +79,20 @@ export const Column = ({ column }: { column: ColumnType }) => {
       </button>
 
       <div
+        ref={setNodeRef}
+        id={column.id}
         style={{
           flex: 1,
           display: "flex",
           flexDirection: "column",
           gap: "12px",
           overflowY: "auto",
+          overflowX: "visible",
           padding: "4px",
+          overscrollBehavior: "contain",
         }}
       >
-        {column.tasks.map((task) => (
+        {column.tasks.map(task => (
           <TaskCard key={task.id} task={task} />
         ))}
       </div>

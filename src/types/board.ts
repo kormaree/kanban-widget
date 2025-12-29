@@ -25,6 +25,7 @@ export interface Task {
   priority: "low" | "medium" | "high";
   deadline: string;
   is_completed: boolean;
+  display_order: number;
   color: string;
   assignees: Assignee[];
   subtasks: Subtask[];

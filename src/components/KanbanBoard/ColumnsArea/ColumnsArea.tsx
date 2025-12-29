@@ -1,9 +1,7 @@
-import { useBoardColumns } from "../../../store/boardSelectors";
+import type { Column as ColumnType } from "../../../types/board";
 import { Column } from "./Column";
 
-export const ColumnsArea = () => {
-  
-  const columns = useBoardColumns();
+export const ColumnsArea = ({ columns }: { columns: ColumnType[] }) => {
 
   return (
     <div style={{
