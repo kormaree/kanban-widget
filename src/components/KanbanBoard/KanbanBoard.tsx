@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   DndContext,
   DragOverlay,
-  closestCenter,
   PointerSensor,
   useSensor,
   useSensors,
@@ -12,12 +11,18 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
+
 import { Header } from "./Header/Header";
+import { Filter } from "./Filters/Filters"
+import { Calendar } from "./Calendar/Calendar";
+import { StatsView } from "./StatsView/StatsView";
+import { Editor } from "./Editor/Editor";
 import { ColumnsArea } from "./ColumnsArea/ColumnsArea";
+import { TaskCard } from "./ColumnsArea/TaskCard";
+
 import { useBoardStore } from "../../store/boardStore";
 import { reorderTasks } from "../../api/tasks";
 import type { Task, Column } from "../../types/board";
-import { TaskCard } from "./ColumnsArea/TaskCard";
 
 const moveTask = (
   columns: Column[],
@@ -72,7 +77,13 @@ const moveTask = (
 };
 
 export const KanbanBoard = ({ boardId }: { boardId: string }) => {
-  const { board, loadBoard, updateColumns } = useBoardStore();
+  const {
+    board,
+    loadBoard,
+    updateColumns,
+    activeView,
+  } = useBoardStore();
+
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
   const sensors = useSensors(
@@ -118,43 +129,41 @@ export const KanbanBoard = ({ boardId }: { boardId: string }) => {
     });
   };
 
-  if (!board) {
-    return <div>Загрузка...</div>;
-  }
+  if (!board) return <div>Загрузка...</div>;
 
   const taskIds = board.columns.flatMap(col =>
     col.tasks.map(task => task.id)
   );
 
   return (
-    <DndContext
-      sensors={sensors}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-      collisionDetection={pointerWithin}
-    >
-      <SortableContext items={taskIds}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            height: "100%",
-            width: "100%",
-            borderRadius: "20px",
-          }}
-        >
-          <Header />
-          <ColumnsArea columns={board.columns} />
-        </div>npm install @dnd-kit/modifiers
-      </SortableContext>
+    <div>
+      <Header />
 
-      <DragOverlay modifiers={[snapCenterToCursor]} dropAnimation={null}>
-        {activeTask && (
-          <div style={{ pointerEvents: "none" }}>
-            <TaskCard task={activeTask} />
-          </div>
-        )}
-      </DragOverlay>
-    </DndContext>
+      {activeView === "board" && (
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          collisionDetection={pointerWithin}
+        >
+          <SortableContext items={taskIds}>
+            <ColumnsArea columns={board.columns} />
+          </SortableContext>
+
+          <DragOverlay modifiers={[snapCenterToCursor]} dropAnimation={null}>
+            {activeTask && (
+              <div style={{ pointerEvents: "none" }}>
+                <TaskCard task={activeTask} />
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+      )}
+
+      {activeView === "sort" && (<Filter/>)}
+      {activeView === "calendar" && (<Calendar/>)}
+      {activeView === "stats" && (<StatsView/>)}
+      {activeView === "edit" && (<Editor/>)}
+    </div>
   );
 };

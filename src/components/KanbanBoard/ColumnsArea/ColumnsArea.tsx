@@ -14,7 +14,6 @@ export const ColumnsArea = ({ columns }: { columns: ColumnType[] }) => {
       padding: "30px",
       gap: "26px",
       height: "100%",
-      backgroundColor: "rgba(205, 221, 233, 0.3)",
     }}>
       {columns.map((col) => (
         <Column key={col.id} column={col} />

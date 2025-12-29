@@ -1,152 +1,162 @@
-import { useState } from 'react';
-import { useBoard } from "../../../store/boardSelectors";
+import { useState } from "react";
+import { useBoardStore } from "../../../store/boardStore";
+import type { BoardView } from "../../../types/boardView";
 
-import addIcon from './Icon/add-square-03.svg';
-import switchIcon from './Icon/arrow-switch-horizontal.svg';
-import calendarIcon from './Icon/calendar-02.svg';
-import chartIcon from './Icon/line-chart-up-02.svg';
-import pencilIcon from './Icon/pencil-03.svg';
+import addIcon from "./Icon/add-square-03.svg";
+import addIconBlue from "./Icon/add-square-blue.svg";
+
+import switchIcon from "./Icon/arrow-switch-horizontal.svg";
+import switchIconBlue from "./Icon/arrow-switch-horizontal-blue.svg";
+
+import calendarIcon from "./Icon/calendar-02.svg";
+import calendarIconBlue from "./Icon/calendar-blue.svg";
+
+import chartIcon from "./Icon/line-chart-up-02.svg";
+import chartIconBlue from "./Icon/line-chart-up-blue.svg";
+
+import pencilIcon from "./Icon/pencil-03.svg";
+import pencilIconBlue from "./Icon/pencil-blue.svg";
+
+const ICONS: {
+  view: BoardView;
+  icon: string;
+  activeIcon: string;
+  label: string;
+  tooltipWidth: number;
+}[] = [
+  { view: "board", icon: addIcon, activeIcon: addIconBlue, label: "задачи", tooltipWidth: 64 },
+  { view: "sort", icon: switchIcon, activeIcon: switchIconBlue, label: "сортировка", tooltipWidth: 106 },
+  { view: "calendar", icon: calendarIcon, activeIcon: calendarIconBlue, label: "календарь", tooltipWidth: 97 },
+  { view: "stats", icon: chartIcon, activeIcon: chartIconBlue, label: "статистика", tooltipWidth: 102 },
+  { view: "edit", icon: pencilIcon, activeIcon: pencilIconBlue, label: "редактирование", tooltipWidth: 151 },
+];
 
 export const Header = () => {
-  const [activeIconIndex, setActiveIconIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const { activeView, setActiveView, board } = useBoardStore();
 
-  const board = useBoard();
-  
   const basePositions = [55, 107, 159, 211, 263];
-  
-  const icons = [
-    { src: addIcon, label: 'задачи', tooltipWidth: 64 },
-    { src: switchIcon, label: 'сортировка', tooltipWidth: 106 },
-    { src: calendarIcon, label: 'календарь', tooltipWidth: 97 },
-    { src: chartIcon, label: 'статистика', tooltipWidth: 102 },
-    { src: pencilIcon, label: 'редактирование', tooltipWidth: 151 },
-  ];
 
   const calculatePositions = () => {
-    const positions = [];
-    
-    if (activeIconIndex === null) {
-      for (let i = 0; i < icons.length; i++) {
-        positions.push({
-          iconLeft: basePositions[i],
-          tooltipLeft: basePositions[i] + 40,
-          tooltipVisible: false
-        });
+    return ICONS.map((icon, index) => {
+      if (hoveredIndex === null) {
+        return {
+          iconLeft: basePositions[index],
+          tooltipLeft: basePositions[index] + 40,
+          tooltipVisible: false,
+        };
       }
-    } else {
-      const tooltipWidth = icons[activeIconIndex].tooltipWidth;
-      
-      for (let i = 0; i < icons.length; i++) {
-        if (i < activeIconIndex) {
-          positions.push({
-            iconLeft: basePositions[i],
-            tooltipLeft: basePositions[i] + 40,
-            tooltipVisible: false
-          });
-        } else if (i === activeIconIndex) {
-          positions.push({
-            iconLeft: basePositions[i],
-            tooltipLeft: basePositions[i] + 40,
-            tooltipVisible: true
-          });
-        } else {
-          const shift = tooltipWidth + 10;
-          positions.push({
-            iconLeft: basePositions[i] + shift,
-            tooltipLeft: basePositions[i] + shift + 40,
-            tooltipVisible: false
-          });
-        }
+
+      if (index < hoveredIndex) {
+        return {
+          iconLeft: basePositions[index],
+          tooltipLeft: basePositions[index] + 40,
+          tooltipVisible: false,
+        };
       }
-    }
-    
-    return positions;
+
+      if (index === hoveredIndex) {
+        return {
+          iconLeft: basePositions[index],
+          tooltipLeft: basePositions[index] + 40,
+          tooltipVisible: true,
+        };
+      }
+
+      const shift = ICONS[hoveredIndex].tooltipWidth + 10;
+      return {
+        iconLeft: basePositions[index] + shift,
+        tooltipLeft: basePositions[index] + shift + 40,
+        tooltipVisible: false,
+      };
+    });
   };
 
   const positions = calculatePositions();
 
   return (
-    <div style={{
-      width: "100%",
-      height: "203px",
-      background: "#FFFFFF",
-      margin: "0 auto",
-      position: "relative",
-      padding: "40px",
-      boxSizing: "border-box",
-    }} className="drag-handle">
-      <div style={{
-        width: "800px",
-        height: "36px",
-        fontFamily: "'Inter', sans-serif",
-        fontWeight: 600,
-        fontSize: "30px",
-        lineHeight: "100%",
-        color: "#000000"
-      }}>
+    <div
+      className="drag-handle"
+      style={{
+        width: "100%",
+        height: "180px",
+        background: "#FFFFFF",
+        position: "relative",
+        padding: "40px",
+        boxSizing: "border-box",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "'Inter', sans-serif",
+          fontWeight: 600,
+          fontSize: "30px",
+        }}
+      >
         {board?.title ?? "Загрузка доски..."}
       </div>
-      
-      {icons.map((icon, index) => (
-        <div
-          key={index}
-          style={{
-            position: "absolute",
-            left: `${positions[index].iconLeft}px`,
-            top: "114px",
-            width: "32px",
-            height: "32px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: 'left 0.3s ease'
-          }}
-          onMouseEnter={() => setActiveIconIndex(index)}
-          onMouseLeave={() => setActiveIconIndex(null)}
-        >
-          <img 
-            src={icon.src}
-            alt={icon.label}
-            style={{ 
-              width: "100%", 
-              height: "100%",
-              transform: activeIconIndex === index ? 'scale(1.1)' : 'scale(1)',
-              transition: 'transform 0.2s ease'
-            }}
-          />
-        </div>
-      ))}
-      
-      {icons.map((icon, index) => {
-        if (!positions[index].tooltipVisible) return null;
-        
+
+      {ICONS.map((icon, index) => {
+        const isActive = activeView === icon.view;
+
         return (
           <div
-            key={`tooltip-${index}`}
+            key={icon.view}
             style={{
               position: "absolute",
-              width: `${icon.tooltipWidth}px`,
-              height: "22px",
+              left: positions[index].iconLeft,
+              top: "114px",
+              width: 32,
+              height: 32,
+              cursor: "pointer",
+              transition: "left 0.3s ease",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onMouseEnter={() => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            onClick={() => setActiveView(icon.view)}
+          >
+            <img
+              src={isActive ? icon.activeIcon : icon.icon}
+              alt={icon.label}
+              style={{
+                width: "100%",
+                height: "100%",
+                transform: hoveredIndex === index ? "scale(1.1)" : "scale(1)",
+                transition: "transform 0.2s ease",
+              }}
+            />
+          </div>
+        );
+      })}
+
+      {ICONS.map((icon, index) =>
+        positions[index].tooltipVisible ? (
+          <div
+            key={`tooltip-${icon.view}`}
+            style={{
+              position: "absolute",
+              left: positions[index].tooltipLeft,
               top: "126px",
-              left: `${positions[index].tooltipLeft}px`,
+              width: icon.tooltipWidth,
+              height: 22,
               fontFamily: "'Inter', sans-serif",
               fontWeight: 600,
-              fontSize: "18px",
-              lineHeight: "100%",
-              letterSpacing: "0%",
+              fontSize: 18,
               color: "#BCC1C7",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               whiteSpace: "nowrap",
-              pointerEvents: "none"
+              pointerEvents: "none",
             }}
           >
             {icon.label}
           </div>
-        );
-      })}
+        ) : null
+      )}
     </div>
   );
 };

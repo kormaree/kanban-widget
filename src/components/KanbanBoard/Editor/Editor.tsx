@@ -1,4 +1,4 @@
-export const Filter = () => {
+export const Editor = () => {
     return (
         <div>
             Раздел еще в разработке

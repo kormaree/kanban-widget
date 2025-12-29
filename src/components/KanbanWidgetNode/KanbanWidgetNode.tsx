@@ -25,7 +25,7 @@ export function KanbanWidgetNode({
       style={{
         width: "100%",
         height: "100%",
-        background: selected ? "rgba(205, 221, 233, 0.3)" : "rgba(205, 221, 233, 0.3)",
+        background: selected ? "rgba(205, 221, 233, 0.4)" : "rgba(205, 221, 233, 0.4)",
         borderRadius: 20,
         overflow: "hidden",
         opacity: dragging ? 0.8 : 1,
