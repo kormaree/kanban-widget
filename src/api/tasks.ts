@@ -10,3 +10,11 @@ export interface ReorderColumnsRequest {
 export const reorderTasks = (boardId: string, data: ReorderColumnsRequest) => {
   return http.post(`/boards/${boardId}/reorder`, data);
 };
+export interface PostTaskRequest {
+  title: string;
+  column_id: string
+}
+
+export const create = (data: PostTaskRequest) => {
+  return http.post(`/tasks`, data);
+};

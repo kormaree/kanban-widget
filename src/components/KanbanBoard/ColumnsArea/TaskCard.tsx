@@ -106,13 +106,15 @@ export const TaskCard = ({ task }: { task: Task }) => {
                 gap: "3px"
               }}
             >
-                <img 
-                src={getPriorityColorSVG(task.priority)} 
-                style={{
-                  width: "19px", 
-                  height: "19px"
-                }} 
+              {task.priority && (
+                <img
+                  src={getPriorityColorSVG(task.priority)}
+                  style={{
+                    width: "19px",
+                    height: "19px",
+                  }}
                 />
+              )}
               {getPriorityName(task.priority)}
             </span>
 
@@ -201,8 +203,6 @@ const getPriorityColor = (priority: Task["priority"]) => {
       return "#FFECBD";
     case "low":
       return "#CDFFC2";
-    default:
-      return "#8D9EAD";
   }
 };
 
@@ -214,8 +214,6 @@ const getPriorityColorText = (priority: Task["priority"]) => {
       return "#E89300";
     case "low":
       return "#30C100";
-    default:
-      return "#8D9EAD";
   }
 };
 
@@ -227,8 +225,6 @@ const getPriorityName = (priority: Task["priority"]) => {
       return "средний";
     case "low":
       return "низкий";
-    default:
-      return "нет приоритета";
   }
 };
 
@@ -239,8 +235,6 @@ const getPriorityColorSVG = (priority: Task["priority"]) => {
     case "medium":
       return barIconOrange;
     case "low":
-      return barIconGreen;
-    default:
       return barIconGreen;
   }
 };

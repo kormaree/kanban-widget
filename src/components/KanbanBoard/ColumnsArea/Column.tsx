@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { create as createTask } from "../../../api/tasks";
+import { useBoardStore } from "../../../store/boardStore";
+
 import type { Column as ColumnType } from "../../../types/board";
 import { TaskCard } from "./TaskCard";
 import filterIcon from './images/filter.svg';
@@ -8,6 +12,38 @@ export const Column = ({ column }: { column: ColumnType }) => {
   const { setNodeRef } = useDroppable({
     id: column.id,
   });
+
+  const { updateColumns, board } = useBoardStore();
+  const [isCreating, setIsCreating] = useState(false);
+  const [title, setTitle] = useState("");
+
+  const handleCreate = async () => {
+    if (!title.trim()) {
+      setIsCreating(false);
+      setTitle("");
+      return;
+    }
+
+    try {
+      const { data: newTask } = await createTask({
+        title: title.trim(),
+        column_id: column.id,
+      });
+
+      if (!board) return;
+
+      updateColumns(
+        board.columns.map(col =>
+          col.id === column.id
+            ? { ...col, tasks: [...col.tasks, newTask] }
+            : col
+        )
+      );
+    } finally {
+      setIsCreating(false);
+      setTitle("");
+    }
+  };
 
   return (
     <div style={{
@@ -46,13 +82,15 @@ export const Column = ({ column }: { column: ColumnType }) => {
             {column.tasks.length}
           </span>
         </div>
-        <button style={{
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          color: "#3789D5",
-          fontSize: "44px",
-        }}>
+        <button 
+          onClick={() => setIsCreating(true)}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "#3789D5",
+            fontSize: "44px",
+          }}>
           +
         </button>
       </div>
@@ -78,6 +116,39 @@ export const Column = ({ column }: { column: ColumnType }) => {
           фильтровать
       </button>
 
+      {isCreating && (
+        <div
+          style={{
+            background: "#FFFFFF",
+            borderRadius: "15px",
+            padding: "15px",
+            boxShadow: "0px 4px 10px rgba(0,0,0,0.06)",
+          }}
+        >
+          <input
+            autoFocus
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={handleCreate}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleCreate();
+              if (e.key === "Escape") {
+                setIsCreating(false);
+                setTitle("");
+              }
+            }}
+            placeholder="Введите название задачи"
+            style={{
+              width: "100%",
+              border: "none",
+              outline: "none",
+              fontSize: "18px",
+              fontFamily: "'Inter', sans-serif",
+            }}
+          />
+        </div>
+      )}
+
       <div
         ref={setNodeRef}
         id={column.id}
@@ -87,9 +158,12 @@ export const Column = ({ column }: { column: ColumnType }) => {
           flexDirection: "column",
           gap: "12px",
           overflowY: "auto",
-          overflowX: "visible",
+          overflowX: "hidden",
           padding: "4px",
           overscrollBehavior: "contain",
+
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
         }}
       >
         {column.tasks.map(task => (

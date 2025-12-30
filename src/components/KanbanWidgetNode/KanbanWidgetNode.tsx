@@ -22,6 +22,9 @@ export function KanbanWidgetNode({
       />
 
     <div
+      onWheelCapture={(e) => { //Это нужно для скролла колонок
+          e.stopPropagation();
+      }}
       style={{
         width: "100%",
         height: "100%",
