@@ -14,6 +14,3 @@ export const useBoard = () =>
 
 export const useBoardLoading = () =>
   useBoardStore((state) => state.isLoading);
-
-export const useBoardError = () =>
-  useBoardStore((state) => state.error);

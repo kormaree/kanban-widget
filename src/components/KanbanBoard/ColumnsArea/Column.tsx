@@ -13,7 +13,7 @@ export const Column = ({ column }: { column: ColumnType }) => {
     id: column.id,
   });
 
-  const { updateColumns, board } = useBoardStore();
+  const { setActiveView, updateColumns, board } = useBoardStore();
   const [isCreating, setIsCreating] = useState(false);
   const [title, setTitle] = useState("");
 
@@ -94,7 +94,9 @@ export const Column = ({ column }: { column: ColumnType }) => {
           +
         </button>
       </div>
-      <button style={{
+      <button
+        onClick={() => setActiveView("sort")}
+        style={{
           background: "none",
           border: "none",
           cursor: "pointer",
