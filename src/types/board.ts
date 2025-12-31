@@ -21,6 +21,7 @@ export interface Column {
 
 export interface Task {
   id: string;
+  board_id: string;
   title: string;
   priority: "low" | "medium" | "high";
   deadline: string;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { create as createTask } from "../../../api/tasks";
+import { createTask } from "../../../api/tasks";
 import { useBoardStore } from "../../../store/boardStore";
 
 import type { Column as ColumnType } from "../../../types/board";
@@ -32,13 +32,25 @@ export const Column = ({ column }: { column: ColumnType }) => {
 
       if (!board) return;
 
-      updateColumns(
-        board.columns.map(col =>
-          col.id === column.id
-            ? { ...col, tasks: [...col.tasks, newTask] }
-            : col
-        )
-      );
+    updateColumns(
+      board.columns.map(col => {
+        if (col.id !== column.id) return col;
+
+        const minOrder =
+          col.tasks.length > 0
+            ? Math.min(...col.tasks.map(t => t.display_order))
+            : 0;
+
+        return {
+          ...col,
+          tasks: [
+            { ...newTask, display_order: minOrder - 1 },
+            ...col.tasks,
+          ],
+        };
+      })
+    );
+    
     } finally {
       setIsCreating(false);
       setTitle("");

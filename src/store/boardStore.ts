@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getBoard } from "../api/board";
-import type { Board } from "../types/board";
+import type { Board, Task } from "../types/board";
 import type { BoardView } from "../types/boardView";
 
 interface BoardStore {
@@ -12,6 +12,9 @@ interface BoardStore {
 
   loadBoard: (boardId: string) => Promise<void>;
   updateColumns: (columns: Board["columns"]) => void;
+
+  removeTask: (taskId: string) => void;
+  updateTaskInStore: (taskId: string, updates: Partial<Task>) => void;
 }
 
 export const useBoardStore = create<BoardStore>((set) => ({
@@ -49,5 +52,41 @@ export const useBoardStore = create<BoardStore>((set) => ({
         ? { board: { ...state.board, columns } }
         : {}
     );
+  },
+
+  removeTask(taskId) {
+    set(state => {
+      if (!state.board) return {};
+
+      return {
+        board: {
+          ...state.board,
+          columns: state.board.columns.map(col => ({
+            ...col,
+            tasks: col.tasks.filter(task => task.id !== taskId),
+          })),
+        },
+      };
+    });
+  },
+
+  updateTaskInStore(taskId: string, updates: Partial<Task>) {
+    set(state => {
+      if (!state.board) return {};
+
+      return {
+        board: {
+          ...state.board,
+          columns: state.board.columns.map(col => ({
+            ...col,
+            tasks: col.tasks.map(task =>
+              task.id === taskId
+                ? { ...task, ...updates }
+                : task
+            ),
+          })),
+        },
+      };
+    });
   },
 }));

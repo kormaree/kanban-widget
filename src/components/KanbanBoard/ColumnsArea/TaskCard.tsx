@@ -1,6 +1,8 @@
 import type { Task } from "../../../types/board";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useState } from "react";
+import { TaskActionsMenu } from "./TaskActionsMenu";
 import calendarIcon from './images/calendar.svg';
 import messageIcon from './images/message-alert-plus.svg';
 import barIconGreen from './images/bar-chart-square-green.svg';
@@ -13,6 +15,8 @@ export const TaskCard = ({ task }: { task: Task }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
   });
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const style = {
     transform: isDragging ? undefined : CSS.Transform.toString(transform),
@@ -37,7 +41,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
         data-id={task.id}
         style={{
           fontFamily: "'Inter', sans-serif",
-          backgroundColor: "#FFFFFF",
+          backgroundColor: task.color ?? "#FFFFFF",
           borderRadius: "15px",
           padding: "15px",
           display: "flex",
@@ -63,11 +67,16 @@ export const TaskCard = ({ task }: { task: Task }) => {
             {task.title}
           </div>
 
-          <button style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-          }}>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMenuOpen(true);
+            }}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}>
             <img 
               src={dotsIcon} 
               style={{ 
@@ -190,6 +199,13 @@ export const TaskCard = ({ task }: { task: Task }) => {
             </div>
           )}
         </div>
+
+        {isMenuOpen && (
+          <TaskActionsMenu
+            task={task}
+            onClose={() => setIsMenuOpen(false)}
+          />
+        )}
       </div>
     </div>
   );

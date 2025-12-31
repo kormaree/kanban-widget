@@ -15,6 +15,23 @@ export interface PostTaskRequest {
   column_id: string
 }
 
-export const create = (data: PostTaskRequest) => {
+export const createTask = (data: PostTaskRequest) => {
   return http.post(`/tasks`, data);
+};
+
+export const deleteTask = (taskId: string) => {
+  return http.delete(`/tasks/${taskId}`);
+};
+
+export interface UpdateTaskRequest {
+  priority?: "low" | "medium" | "high";
+  deadline?: string,
+  display_order?: number,
+  column_id?: string,
+  is_completed?: true,
+  color?: string
+}
+
+export const updateTask = (taskId: string, data: UpdateTaskRequest) => {
+  return http.patch(`/tasks/${taskId}`, data);
 };
