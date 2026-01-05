@@ -190,7 +190,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
                   alignItems: "center",
                   gap: "5px",
                   width: 180,
-                  height: 30,
+                  height: 28,
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",

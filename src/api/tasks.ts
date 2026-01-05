@@ -29,7 +29,8 @@ export interface UpdateTaskRequest {
   display_order?: number,
   column_id?: string,
   is_completed?: true,
-  color?: string
+  color?: string,
+  title?: string,
 }
 
 export const updateTask = (taskId: string, data: UpdateTaskRequest) => {

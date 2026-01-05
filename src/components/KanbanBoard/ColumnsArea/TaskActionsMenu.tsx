@@ -141,9 +141,7 @@ export function TaskActionsMenu({ task, onClose }: Props) {
       )}
 
       {view === "rename" && (
-          <RenameSection
-
-          />
+          <RenameSection taskId={task.id}/>
       )}
     </div>
   );
@@ -563,11 +561,26 @@ function CommentSection({ taskId }: { taskId: string }) {
   );
 }
 
-function RenameSection({
-  //onChangeDeadline,
-}: {
-  //onChangeDeadline: (Deadline: string) => void;
-}) {
+function RenameSection ({ taskId }: { taskId: string }) {
+
+  const [title, setTitle] = useState("");
+  const { updateTaskInStore } = useBoardStore();
+
+  const handleCreate = async () => {
+    const trimmed = title.trim();
+    if (!trimmed) {
+      setTitle("");
+      return;
+    }
+
+    try {
+      await updateTask(taskId, { title: trimmed });
+
+      updateTaskInStore(taskId, { title: trimmed });
+    } finally {
+      setTitle("");
+    }
+  };
 
   return (
     <div>
@@ -583,6 +596,29 @@ function RenameSection({
       </div>
 
       <hr style={{ borderTop: "1px solid #E3E5EF"}} />
+
+      <input
+        autoFocus
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        onBlur={handleCreate}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleCreate();
+          if (e.key === "Escape") setTitle("");
+        }}
+        placeholder="Переименуйте задачу..."
+        style={{
+          padding: 16,
+          width: "200px",
+          border: "1px solid #A4D1F4 ",
+          boxShadow: "5px 5px 5px 5px rgba(209, 232, 250, 0.4);",
+          marginLeft: 24,
+          outline: "none",
+          fontSize: 16,
+          fontWeight: 500,
+          fontFamily: "'Inter', sans-serif",
+        }}
+      />
 
     </div>
   );
