@@ -4,6 +4,9 @@ import { deleteTask, updateTask } from "../../../api/tasks";
 import { useBoardStore } from "../../../store/boardStore";
 import { getBoardAssignees, addTaskAssignee, createBoardMember } from "../../../api/assignee";
 
+import { DayPicker, getDefaultClassNames } from "react-day-picker";
+import { ru } from "date-fns/locale";
+
 import calendarIcon from './images/calendar-02.svg';
 import messageIcon from './images/message.svg';
 import pencilIcon from './images/pencil-02.svg';
@@ -131,9 +134,7 @@ export function TaskActionsMenu({ task, onClose }: Props) {
       )}
 
       {view === "deadline" && (
-        <DeadlineSection
-
-        />
+        <DeadlineSection task={task}/>
       )}
 
       {view === "comment" && (
@@ -353,7 +354,7 @@ function AssigneeSection({
 
           <input
             value={name}
-            style={{border: "none", marginLeft: 22, fontWeight: 500, fontSize: 18, borderBottom: "2px solid #E3E5EF", width: 230}}
+            style={{outline: "none",border: "none", marginLeft: 22, fontWeight: 500, fontSize: 18, borderBottom: "2px solid #E3E5EF", width: 230}}
             onChange={(e) => setName(e.target.value)}
             placeholder="Имя"
           />
@@ -361,7 +362,7 @@ function AssigneeSection({
           <input
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            style={{border: "none", marginLeft: 22, fontWeight: 500, fontSize: 18, borderBottom: "2px solid #E3E5EF", width: 230}}
+            style={{outline: "none", border: "none", marginLeft: 22, fontWeight: 500, fontSize: 18, borderBottom: "2px solid #E3E5EF", width: 230}}
             placeholder="Роль"
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           />
@@ -461,30 +462,102 @@ function PrioritySection({
   );
 }
 
-function DeadlineSection({
-  //onChangeDeadline,
-}: {
-  //onChangeDeadline: (Deadline: string) => void;
-}) {
+function DeadlineSection({ task }: { task: Task }) {
+  const { updateTaskInStore } = useBoardStore();
+  const [selected, setSelected] = useState<Date | undefined>(
+    task.deadline ? new Date(task.deadline) : undefined
+  );
+
+  const handleSelect = async (date?: Date) => {
+    if (!date) return;
+
+    setSelected(date);
+
+    const iso = date.toISOString();
+    await updateTask(task.id, { deadline: iso });
+    updateTaskInStore(task.id, { deadline: iso });
+  };
+
+  const defaultClassNames = getDefaultClassNames();
 
   return (
-    <div>
-      <div style={{
-        marginLeft: 24,
-        fontSize: 18,
-        fontWeight: 600,
-        color: "#4B4F54",
-        marginBottom: 17,
-        fontFamily: "'Inter', sans-serif",
-      }}>
+    <div style={{ fontFamily: "'Inter', sans-serif" }}>
+      <div
+        style={{
+          marginLeft: 24,
+          fontSize: 18,
+          fontWeight: 600,
+          color: "#4B4F54",
+          marginBottom: 12,
+        }}
+      >
         Дедлайн
       </div>
 
-      <hr style={{ borderTop: "1px solid #E3E5EF"}} />
+      <hr style={{ borderTop: "1px solid #E3E5EF", marginBottom: 12 }} />
 
+      <DayPicker
+        mode="single"
+        selected={selected}
+        onSelect={handleSelect}
+        locale={ru}
+        weekStartsOn={1}
+        style={{marginLeft: 16}}
+        classNames={{
+          root: `${defaultClassNames.root} bg-white shadow-lg p-5`,
+        }}
+      />
+
+      <style>
+        {`
+          /* === МЕСЯЦ + ГОД === */
+          .rdp-caption_label {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3789D5;
+            text-transform: lowercase;
+            margin-left: 8px;
+          }
+
+          /* === ДНИ НЕДЕЛИ === */
+          .rdp-weekday {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333333;
+            text-transform: lowercase;
+            padding-bottom: 6px;
+          }
+
+          /* === КНОПКИ ДНЕЙ === */
+          .rdp-day_button {
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 32px;
+            height: 32px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+          }
+
+          /* === СТРЕЛКИ === */
+          .rdp-button_next,
+          .rdp-button_previous {
+            background: none !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 4px;
+            cursor: pointer;
+          }
+        `}
+        </style>
     </div>
   );
 }
+
 
 function CommentSection({ taskId }: { taskId: string }) {
 

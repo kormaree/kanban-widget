@@ -3,12 +3,15 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState } from "react";
 import { TaskActionsMenu } from "./TaskActionsMenu";
+
 import calendarIcon from './images/calendar.svg';
+import calendarIconRed from './images/calendar-red.svg';
 import messageIcon from './images/message-alert-plus.svg';
 import barIconGreen from './images/bar-chart-square-green.svg';
 import barIconOrange from './images/bar-chart-square-orange.svg';
 import barIconRed from './images/bar-chart-square-red.svg';
 import dotsIcon from './images/dots3.svg';
+
 
 export const TaskCard = ({ task }: { task: Task }) => {
 
@@ -150,30 +153,34 @@ export const TaskCard = ({ task }: { task: Task }) => {
               {getPriorityName(task.priority)}
             </span>
 
-            {task.deadline && (
-              <span
-                style={{
-                  fontSize: "16px",
-                  fontWeight: 500,
-                  padding: "6px 7px",
-                  borderRadius: "5px",
-                  backgroundColor: "#C7CAFF",
-                  color: "#4260AA",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "3px"
-                }}
-              >
-                <img 
-                src={calendarIcon} 
-                style={{ 
-                  width: "19px", 
-                  height: "19px"
-                }} 
-                />
-                {formatDate(task.deadline)}
-              </span>
-            )}
+            {task.deadline && (() => {
+              const expired = isDeadlineExpired(task.deadline);
+
+              return (
+                <span
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: 500,
+                    padding: "6px 7px",
+                    borderRadius: "5px",
+                    backgroundColor: expired ? "#FFC7C7" : "#C7CAFF",
+                    color: expired ? "#FF2F2F" : "#4260AA",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "3px",
+                  }}
+                >
+                  <img
+                    src={expired ? calendarIconRed : calendarIcon}
+                    style={{
+                      width: "19px",
+                      height: "19px",
+                    }}
+                  />
+                  {formatDate(task.deadline)}
+                </span>
+              );
+            })()}
 
             {lastComment && (
               <span
@@ -252,19 +259,6 @@ export const TaskCard = ({ task }: { task: Task }) => {
             }}
           >
             {lastComment.content}
-            <div
-              style={{
-                position: "absolute",
-                top: "-6px",
-                left: "20px",
-                width: 0,
-                height: 0,
-                borderLeft: "6px solid transparent",
-                borderRight: "6px solid transparent",
-                borderTop: "6px solid rgba(122, 121, 138, 1)",
-                transform: "rotate(180deg)",
-              }}
-            />
           </div>
         )}
 
@@ -328,6 +322,16 @@ const formatDate = (isoDate: string) => {
     day: "2-digit",
     month: "short",
   });
+};
+
+const isDeadlineExpired = (isoDate: string) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const deadline = new Date(isoDate);
+  deadline.setHours(0, 0, 0, 0);
+
+  return deadline < today;
 };
 
 const getInitials = (name: string) => {
