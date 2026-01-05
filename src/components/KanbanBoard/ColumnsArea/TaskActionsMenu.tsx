@@ -13,6 +13,7 @@ import trashIcon from './images/trash-02.svg';
 import barIconGreen from './images/bar-chart-square-green.svg';
 import barIconOrange from './images/bar-chart-square-orange.svg';
 import barIconRed from './images/bar-chart-square-red.svg';
+import { createComment } from "../../../api/comment";
 
 type Props = {
   task: Task;
@@ -136,9 +137,7 @@ export function TaskActionsMenu({ task, onClose }: Props) {
       )}
 
       {view === "comment" && (
-          <CommentSection
-
-          />
+        <CommentSection taskId={task.id} />
       )}
 
       {view === "rename" && (
@@ -489,11 +488,28 @@ function DeadlineSection({
   );
 }
 
-function CommentSection({
-  //onChangeDeadline,
-}: {
-  //onChangeDeadline: (Deadline: string) => void;
-}) {
+function CommentSection({ taskId }: { taskId: string }) {
+
+  const [comment, setComment] = useState("");
+  const { addCommentToTask } = useBoardStore();
+
+  const handleCreate = async () => {
+      if (!comment.trim()) {
+        setComment("");
+        return;
+      }
+
+      try {
+        const { data: newComment } = await createComment({
+          content: comment.trim(),
+          task_id: taskId,
+        });
+
+        addCommentToTask(taskId, newComment);
+      } finally {
+        setComment("");
+      }
+    };
 
   return (
     <div>
@@ -521,6 +537,28 @@ function CommentSection({
         КОММЕНТАРИЙ К ВЫБРАННОЙ ЗАДАЧЕ
       </div>
 
+      <input
+        autoFocus
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        onBlur={handleCreate}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") handleCreate();
+          if (e.key === "Escape") setComment("");
+        }}
+        placeholder="Введите комментарий..."
+        style={{
+          padding: 16,
+          width: "200px",
+          border: "1px solid #A4D1F4 ",
+          boxShadow: "5px 5px 5px 5px rgba(209, 232, 250, 0.4);",
+          marginLeft: 24,
+          outline: "none",
+          fontSize: 16,
+          fontWeight: 500,
+          fontFamily: "'Inter', sans-serif",
+        }}
+      />
     </div>
   );
 }

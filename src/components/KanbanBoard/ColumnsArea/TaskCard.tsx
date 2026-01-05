@@ -19,8 +19,27 @@ export const TaskCard = ({ task }: { task: Task }) => {
   const lastAssignee = task.assignees?.length
     ? task.assignees[task.assignees.length - 1]
     : null;
+  
+  const lastComment = task.comments?.length
+    ? task.comments[task.comments?.length - 1]
+    : null;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
+  const handleCommentMouseEnter = (e: React.MouseEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setTooltipPosition({
+      x: rect.left,
+      y: rect.top,
+    });
+    setIsTooltipVisible(true);
+  };
+
+  const handleCommentMouseLeave = () => {
+    setIsTooltipVisible(false);
+  };
 
   const style = {
     transform: isDragging ? undefined : CSS.Transform.toString(transform),
@@ -156,8 +175,10 @@ export const TaskCard = ({ task }: { task: Task }) => {
               </span>
             )}
 
-            {task.comments?.[0] && (
+            {lastComment && (
               <span
+                onMouseEnter={handleCommentMouseEnter}
+                onMouseLeave={handleCommentMouseLeave}
                 style={{
                   fontSize: "16px",
                   fontWeight: 500,
@@ -167,7 +188,12 @@ export const TaskCard = ({ task }: { task: Task }) => {
                   color: "#4E5358",
                   display: "flex",
                   alignItems: "center",
-                  gap: "3px"
+                  gap: "5px",
+                  width: 180,
+                  height: 30,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 <img 
@@ -177,7 +203,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
                   height: "19px"
                 }} 
                 />
-                {task.comments[0].content}
+                {lastComment.content}
               </span>
             )}
           </div>
@@ -203,6 +229,44 @@ export const TaskCard = ({ task }: { task: Task }) => {
             </div>
           )}
         </div>
+
+        {isTooltipVisible && lastComment && (
+          <div
+            style={{
+              position: "fixed",
+              left: `${tooltipPosition.x - 30}px`,
+              top: `${tooltipPosition.y + 40}px`,
+              transform: "translateY(-100%)",
+              backgroundColor: "rgba(122, 121, 138, 1)",
+              color: "#fff",
+              padding: "13px",
+              borderRadius: "8px",
+              fontSize: "16px",
+              fontWeight: 500,
+              maxWidth: "300px",
+              whiteSpace: "normal",
+              wordBreak: "break-word",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              zIndex: 1000,
+              pointerEvents: "none",
+            }}
+          >
+            {lastComment.content}
+            <div
+              style={{
+                position: "absolute",
+                top: "-6px",
+                left: "20px",
+                width: 0,
+                height: 0,
+                borderLeft: "6px solid transparent",
+                borderRight: "6px solid transparent",
+                borderTop: "6px solid rgba(122, 121, 138, 1)",
+                transform: "rotate(180deg)",
+              }}
+            />
+          </div>
+        )}
 
         {isMenuOpen && (
           <TaskActionsMenu

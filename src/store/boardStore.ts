@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getBoard } from "../api/board";
-import type { Assignee, Board, Task } from "../types/board";
+import type { Comment, Assignee, Board, Task } from "../types/board";
 import type { BoardView } from "../types/boardView";
 
 interface BoardStore {
@@ -16,6 +16,7 @@ interface BoardStore {
   removeTask: (taskId: string) => void;
   updateTaskInStore: (taskId: string, updates: Partial<Task>) => void;
   addAssigneeToTask: (taskId: string, assignee: Assignee) => void;
+  addCommentToTask: (taskId: string, comment: Comment) => void;
 }
 
 export const useBoardStore = create<BoardStore>((set) => ({
@@ -110,6 +111,29 @@ export const useBoardStore = create<BoardStore>((set) => ({
               return {
                 ...task,
                 assignees: [...task.assignees, assignee],
+              };
+            }),
+          })),
+        },
+      };
+    });
+  },
+
+  addCommentToTask(taskId, comment) {
+    set(state => {
+      if (!state.board) return {};
+
+      return {
+        board: {
+          ...state.board,
+          columns: state.board.columns.map(col => ({
+            ...col,
+            tasks: col.tasks.map(task => {
+              if (task.id !== taskId) return task;
+
+              return {
+                ...task,
+                comments: [...task.comments, comment],
               };
             }),
           })),
