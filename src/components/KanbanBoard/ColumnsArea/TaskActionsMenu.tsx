@@ -130,15 +130,21 @@ export function TaskActionsMenu({ task, onClose }: Props) {
       )}
 
       {view === "deadline" && (
-          <div>Календарь</div>
+        <DeadlineSection
+
+        />
       )}
 
       {view === "comment" && (
-          <div>Комментарий</div>
+          <CommentSection
+
+          />
       )}
 
       {view === "rename" && (
-          <div>Переименовать</div>
+          <RenameSection
+
+          />
       )}
     </div>
   );
@@ -346,8 +352,11 @@ function AssigneeSection({
 
       {isAdding && (
         <>
+          <hr style={{ borderTop: "1px solid #E3E5EF"}} />
+
           <input
             value={name}
+            style={{border: "none", marginLeft: 22, fontWeight: 500, fontSize: 18, borderBottom: "2px solid #E3E5EF", width: 230}}
             onChange={(e) => setName(e.target.value)}
             placeholder="Имя"
           />
@@ -355,6 +364,7 @@ function AssigneeSection({
           <input
             value={role}
             onChange={(e) => setRole(e.target.value)}
+            style={{border: "none", marginLeft: 22, fontWeight: 500, fontSize: 18, borderBottom: "2px solid #E3E5EF", width: 230}}
             placeholder="Роль"
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           />
@@ -450,6 +460,92 @@ function PrioritySection({
           {priority.label}
         </button>
       ))}
+    </div>
+  );
+}
+
+function DeadlineSection({
+  //onChangeDeadline,
+}: {
+  //onChangeDeadline: (Deadline: string) => void;
+}) {
+
+  return (
+    <div>
+      <div style={{
+        marginLeft: 24,
+        fontSize: 18,
+        fontWeight: 600,
+        color: "#4B4F54",
+        marginBottom: 17,
+        fontFamily: "'Inter', sans-serif",
+      }}>
+        Дедлайн
+      </div>
+
+      <hr style={{ borderTop: "1px solid #E3E5EF"}} />
+
+    </div>
+  );
+}
+
+function CommentSection({
+  //onChangeDeadline,
+}: {
+  //onChangeDeadline: (Deadline: string) => void;
+}) {
+
+  return (
+    <div>
+      <div style={{
+        marginLeft: 24,
+        fontSize: 18,
+        fontWeight: 600,
+        color: "#4B4F54",
+        marginBottom: 17,
+        fontFamily: "'Inter', sans-serif",
+      }}>
+        Комментарий
+      </div>
+
+      <hr style={{ borderTop: "1px solid #E3E5EF"}} />
+
+            <div style={{
+        marginLeft: 24,
+        fontSize: 12,
+        fontWeight: 500,
+        color: "#B5B5B5",
+        marginBottom: 14,
+        fontFamily: "'Inter', sans-serif",
+      }}>
+        КОММЕНТАРИЙ К ВЫБРАННОЙ ЗАДАЧЕ
+      </div>
+
+    </div>
+  );
+}
+
+function RenameSection({
+  //onChangeDeadline,
+}: {
+  //onChangeDeadline: (Deadline: string) => void;
+}) {
+
+  return (
+    <div>
+      <div style={{
+        marginLeft: 24,
+        fontSize: 18,
+        fontWeight: 600,
+        color: "#4B4F54",
+        marginBottom: 17,
+        fontFamily: "'Inter', sans-serif",
+      }}>
+        Переименовать
+      </div>
+
+      <hr style={{ borderTop: "1px solid #E3E5EF"}} />
+
     </div>
   );
 }

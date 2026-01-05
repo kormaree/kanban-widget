@@ -29,20 +29,12 @@ export interface Task {
   display_order: number;
   color: string;
   assignees: Assignee[];
-  subtasks: Subtask[];
   comments: Comment[];
 }
 
 export interface Assignee {
   id: string;
   name: string;
-}
-
-export interface Subtask {
-  id: string;
-  title: string;
-  is_completed: boolean;
-  display_order: number;
 }
 
 export interface Comment {
