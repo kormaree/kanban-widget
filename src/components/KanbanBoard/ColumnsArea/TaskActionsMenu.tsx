@@ -77,11 +77,13 @@ export function TaskActionsMenu({ task, onClose }: Props) {
   const handleChangeColor = async (color: string) => {
     await updateTask(task.id, { color });
     updateTaskInStore(task.id, { color });
+    onClose();
   };
 
   const handleChangePriority = async (priority: Priority) => {
     await updateTask(task.id, { priority });
     updateTaskInStore(task.id, { priority });
+    onClose();
   };
 
   const handleChangeAssign = async (member: {
@@ -94,6 +96,7 @@ export function TaskActionsMenu({ task, onClose }: Props) {
       id: member.member_id,
       name: member.name,
     });
+    onClose();
   };
 
   return (
@@ -134,15 +137,15 @@ export function TaskActionsMenu({ task, onClose }: Props) {
       )}
 
       {view === "deadline" && (
-        <DeadlineSection task={task}/>
+        <DeadlineSection task={task} onClose={onClose} />
       )}
 
       {view === "comment" && (
-        <CommentSection taskId={task.id} />
+        <CommentSection taskId={task.id} onClose={onClose} />
       )}
 
       {view === "rename" && (
-          <RenameSection taskId={task.id}/>
+          <RenameSection taskId={task.id} onClose={onClose}/>
       )}
     </div>
   );
@@ -462,7 +465,7 @@ function PrioritySection({
   );
 }
 
-function DeadlineSection({ task }: { task: Task }) {
+function DeadlineSection({ task, onClose }: { task: Task; onClose: () => void }) {
   const { updateTaskInStore } = useBoardStore();
   const [selected, setSelected] = useState<Date | undefined>(
     task.deadline ? new Date(task.deadline) : undefined
@@ -476,6 +479,8 @@ function DeadlineSection({ task }: { task: Task }) {
     const iso = date.toISOString();
     await updateTask(task.id, { deadline: iso });
     updateTaskInStore(task.id, { deadline: iso });
+
+    onClose();
   };
 
   const defaultClassNames = getDefaultClassNames();
@@ -559,28 +564,26 @@ function DeadlineSection({ task }: { task: Task }) {
 }
 
 
-function CommentSection({ taskId }: { taskId: string }) {
+function CommentSection({ taskId, onClose }: { taskId: string; onClose: () => void }) {
 
   const [comment, setComment] = useState("");
   const { addCommentToTask } = useBoardStore();
 
   const handleCreate = async () => {
-      if (!comment.trim()) {
-        setComment("");
-        return;
-      }
+    if (!comment.trim()) {
+      setComment("");
+      return;
+    }
 
-      try {
-        const { data: newComment } = await createComment({
-          content: comment.trim(),
-          task_id: taskId,
-        });
+    const { data: newComment } = await createComment({
+      content: comment.trim(),
+      task_id: taskId,
+    });
 
-        addCommentToTask(taskId, newComment);
-      } finally {
-        setComment("");
-      }
-    };
+    addCommentToTask(taskId, newComment);
+    setComment("");
+    onClose();
+  };
 
   return (
     <div>
@@ -634,7 +637,7 @@ function CommentSection({ taskId }: { taskId: string }) {
   );
 }
 
-function RenameSection ({ taskId }: { taskId: string }) {
+function RenameSection({ taskId, onClose }: { taskId: string; onClose: () => void }) {
 
   const [title, setTitle] = useState("");
   const { updateTaskInStore } = useBoardStore();
@@ -646,13 +649,11 @@ function RenameSection ({ taskId }: { taskId: string }) {
       return;
     }
 
-    try {
-      await updateTask(taskId, { title: trimmed });
+    await updateTask(taskId, { title: trimmed });
+    updateTaskInStore(taskId, { title: trimmed });
 
-      updateTaskInStore(taskId, { title: trimmed });
-    } finally {
-      setTitle("");
-    }
+    setTitle("");
+    onClose();
   };
 
   return (
