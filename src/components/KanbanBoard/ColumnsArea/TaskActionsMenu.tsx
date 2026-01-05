@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Task } from "../../../types/board";
 import { deleteTask, updateTask } from "../../../api/tasks";
 import { useBoardStore } from "../../../store/boardStore";
-import { getTaskAssignees, addTaskAssignee, createBoardMember } from "../../../api/assignee";
+import { getBoardAssignees, addTaskAssignee, createBoardMember } from "../../../api/assignee";
 
 import calendarIcon from './images/calendar-02.svg';
 import messageIcon from './images/message.svg';
@@ -38,7 +38,7 @@ const TASK_COLORS = [
 ];
 
 export function TaskActionsMenu({ task, onClose }: Props) {
-  const { removeTask, updateTaskInStore} = useBoardStore();
+  const { removeTask, updateTaskInStore, addAssigneeToTask } = useBoardStore();
   const [view, setView] = useState<View>("menu");
   const ref = useRef<HTMLDivElement>(null);
 
@@ -78,7 +78,18 @@ export function TaskActionsMenu({ task, onClose }: Props) {
   const handleChangePriority = async (priority: Priority) => {
     await updateTask(task.id, { priority });
     updateTaskInStore(task.id, { priority });
-    setView("menu");
+  };
+
+  const handleChangeAssign = async (member: {
+    member_id: string;
+    name: string;
+  }) => {
+    await addTaskAssignee(task.id, member.member_id);
+
+    addAssigneeToTask(task.id, {
+      id: member.member_id,
+      name: member.name,
+    });
   };
 
   return (
@@ -107,8 +118,8 @@ export function TaskActionsMenu({ task, onClose }: Props) {
 
       {view === "assignee" && (
         <AssigneeSection
-            taskId={task.id}
             boardId={task.board_id}
+            onChangeAssign={handleChangeAssign}
         />
       )}
 
@@ -244,20 +255,20 @@ function MenuItem({
 
 
 function AssigneeSection({
-  taskId,
   boardId,
+  onChangeAssign,
 }: {
-  taskId: string;
   boardId: string;
+  onChangeAssign: (member: { member_id: string; name: string }) => void;
 }) {
   const [list, setList] = useState<any[]>([]);
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [isAdding, setIsAdding] = useState(false);
-
+  
   useEffect(() => {
-    getTaskAssignees(taskId).then(res => setList(res.data));
-  }, [taskId]);
+    getBoardAssignees(boardId).then(res => setList(res.data));
+  }, [boardId]);
 
   const handleAdd = async () => {
     if (!name.trim()) return;
@@ -290,13 +301,18 @@ function AssigneeSection({
       <hr style={{ borderTop: "1px solid #E3E5EF"}} />
 
       {list.map((u) => (
-        <div
-          key={u.id}
+        <button
+          onClick={() => onChangeAssign(u)}
+          key={u.member_id}
           style={{
             display: "flex",
             alignItems: "center",
             gap: 12,
-            marginBottom: 12,
+            marginBottom: 8,
+            marginLeft: 22,
+            cursor: "pointer",
+            border: "none",
+            backgroundColor: "#fff",
           }}
         >
           <div
@@ -304,7 +320,7 @@ function AssigneeSection({
               width: 32,
               height: 32,
               borderRadius: "50%",
-              background: "#C4C4C4",
+              background: "#ADADAD",
               color: "#fff",
               display: "flex",
               alignItems: "center",
@@ -317,14 +333,15 @@ function AssigneeSection({
           </div>
 
           <div>
-            <div style={{ fontWeight: 500 }}>{u.name}</div>
+            <div style={{ fontWeight: 500, fontSize: 20, color: "#000" }}>{u.name}</div>
+
             {u.role && (
-              <div style={{ fontSize: 12, color: "#8A8A8A" }}>
+              <div style={{ fontSize: 12, color: "#888888", display: "flex", justifyContent: "left" }}>
                 {u.role}
               </div>
             )}
           </div>
-        </div>
+        </button>
       ))}
 
       {isAdding && (
@@ -349,13 +366,13 @@ function AssigneeSection({
       <button
         onClick={() => setIsAdding(true)}
         style={{
-          marginTop: 12,
           background: "none",
           border: "none",
           color: "#3789D5",
           cursor: "pointer",
           fontWeight: 500,
           fontSize: 16,
+          marginLeft: 10,
         }}
       >
         + добавить участника в проект

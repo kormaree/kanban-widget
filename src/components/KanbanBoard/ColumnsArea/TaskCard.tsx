@@ -16,6 +16,10 @@ export const TaskCard = ({ task }: { task: Task }) => {
     id: task.id,
   });
 
+  const lastAssignee = task.assignees?.length
+    ? task.assignees[task.assignees.length - 1]
+    : null;
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const style = {
@@ -178,7 +182,7 @@ export const TaskCard = ({ task }: { task: Task }) => {
             )}
           </div>
           
-          {task.assignees?.[0] && (
+          {lastAssignee && (
             <div
               style={{
                 width: "30px",
@@ -193,9 +197,9 @@ export const TaskCard = ({ task }: { task: Task }) => {
                 fontWeight: 700,
                 flexShrink: 0
               }}
-              title={task.assignees[0].name}
+              title={lastAssignee.name}
             >
-              {getInitials(task.assignees[0].name)}
+              {getInitials(lastAssignee.name)}
             </div>
           )}
         </div>

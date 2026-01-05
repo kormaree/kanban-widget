@@ -9,12 +9,14 @@ export type BoardMember = {
 export const createBoardMember = (data: BoardMember) =>
   http.post<BoardMember>(`/members/`, data);
 
-export type TaskAssignee = {
-  id: string;
+type Member = {
+  member_id: string,
+  name: string,
+  role: string
 };
 
-export const getTaskAssignees = (taskId: string) =>
-  http.get<TaskAssignee[]>(`/tasks/${taskId}/assignees`);
+export const getBoardAssignees = (boardId: string) =>
+  http.get<Member[]>(`/members/${boardId}`);
 
 export const addTaskAssignee = (taskId: string, memberId: string) =>
-  http.post<TaskAssignee>(`/tasks/${taskId}/assignees`, {member_id: memberId});
+  http.post(`/tasks/${taskId}/assignees`, { user_id: memberId });
