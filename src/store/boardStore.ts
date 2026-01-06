@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getBoard } from "../api/board";
-import type { Comment, Assignee, Board, Task } from "../types/board";
+import type { Comment, Assignee, Board, Task, Column } from "../types/board";
 import type { BoardView } from "../types/boardView";
 
 interface BoardStore {
@@ -17,6 +17,12 @@ interface BoardStore {
   updateTaskInStore: (taskId: string, updates: Partial<Task>) => void;
   addAssigneeToTask: (taskId: string, assignee: Assignee) => void;
   addCommentToTask: (taskId: string, comment: Comment) => void;
+
+  addColumn: (column: Board["columns"][number]) => void;
+  updateColumnInStore: (
+    columnId: string,
+    updates: Partial<Pick<Column, "title" | "color">>
+  ) => void;
 }
 
 export const useBoardStore = create<BoardStore>((set) => ({
@@ -137,6 +143,34 @@ export const useBoardStore = create<BoardStore>((set) => ({
               };
             }),
           })),
+        },
+      };
+    });
+  },
+  
+  addColumn(column) {
+    set(state => {
+      if (!state.board) return {};
+
+      return {
+        board: {
+          ...state.board,
+          columns: [...state.board.columns, column],
+        },
+      };
+    });
+  },
+
+  updateColumnInStore(columnId, updates) {
+    set(state => {
+      if (!state.board) return {};
+
+      return {
+        board: {
+          ...state.board,
+          columns: state.board.columns.map(col =>
+            col.id === columnId ? { ...col, ...updates } : col
+          ),
         },
       };
     });

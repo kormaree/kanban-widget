@@ -16,6 +16,7 @@ export interface Column {
   id: string;
   title: string;
   display_order: number;
+  color: string | "none";
   tasks: Task[];
 }
 

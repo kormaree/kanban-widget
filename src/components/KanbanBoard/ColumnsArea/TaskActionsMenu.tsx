@@ -112,7 +112,7 @@ export function TaskActionsMenu({ task, onClose }: Props) {
         paddingTop: "20px",
         borderRadius: 20,
         boxShadow: "5px 5px 5px 5px rgba(0,0,0,0.05)",
-        zIndex: 1,
+        zIndex: 3,
       }}
     >
       {view === "menu" && (

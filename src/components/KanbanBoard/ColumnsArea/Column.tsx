@@ -61,11 +61,11 @@ export const Column = ({ column }: { column: ColumnType }) => {
     <div style={{
       fontFamily: "'Inter', sans-serif",
       fontWeight: 600,
+      flex: "0 0 370px",
       width: "370px",
       height: "748px",
-      backgroundColor: "#F4F7FC",
+      backgroundColor:"#F4F7FC",
       borderRadius: "20px",
-      padding: "25px",
       display: "flex",
       flexDirection: "column",
     }}>
@@ -73,6 +73,7 @@ export const Column = ({ column }: { column: ColumnType }) => {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
+        padding: "25px 25px 0px 25px",
       }}>
         <div style={{
           display: "flex",
@@ -109,6 +110,7 @@ export const Column = ({ column }: { column: ColumnType }) => {
       <button
         onClick={() => setActiveView("sort")}
         style={{
+          padding: "0px 25px 0px 25px",
           background: "none",
           border: "none",
           cursor: "pointer",
@@ -117,7 +119,6 @@ export const Column = ({ column }: { column: ColumnType }) => {
           fontWeight: 500,
           display: "flex",
           alignItems: "flex-start",
-          padding: "0px",
           marginBottom: '8px'
         }}>
           <img 
@@ -130,60 +131,82 @@ export const Column = ({ column }: { column: ColumnType }) => {
           фильтровать
       </button>
 
-      {isCreating && (
+      <div ref={setNodeRef} 
+      style={{
+        backgroundColor: hexToRgba(column.color, 0.3), 
+        borderRadius: "20px", 
+        border: `3px solid ${column.color}`, 
+        width: "calc(100% - 28px)", 
+        height: 625, 
+        padding: 12,
+        overscrollBehavior: "contain",
+        overflowY: "auto",
+        overflowX: "hidden",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        }}>
+        {isCreating && (
+          <div
+            style={{
+              background: "#FFFFFF",
+              borderRadius: "15px",
+              padding: "15px",
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.06)",
+            }}
+          >
+            <input
+              autoFocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={handleCreate}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleCreate();
+                if (e.key === "Escape") {
+                  setIsCreating(false);
+                  setTitle("");
+                }
+              }}
+              placeholder="Введите название задачи"
+              style={{
+                width: "100%",
+                border: "none",
+                outline: "none",
+                fontSize: "18px",
+                fontFamily: "'Inter', sans-serif",
+              }}
+            />
+          </div>
+        )}
+
         <div
+          id={column.id}
           style={{
-            background: "#FFFFFF",
-            borderRadius: "15px",
-            padding: "15px",
-            boxShadow: "0px 4px 10px rgba(0,0,0,0.06)",
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            gap: "12px",
+            padding: "4px",
+
+
           }}
         >
-          <input
-            autoFocus
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={handleCreate}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleCreate();
-              if (e.key === "Escape") {
-                setIsCreating(false);
-                setTitle("");
-              }
-            }}
-            placeholder="Введите название задачи"
-            style={{
-              width: "100%",
-              border: "none",
-              outline: "none",
-              fontSize: "18px",
-              fontFamily: "'Inter', sans-serif",
-            }}
-          />
+          {column.tasks.map(task => (
+            <TaskCard key={task.id} task={task} />
+          ))}
         </div>
-      )}
-
-      <div
-        ref={setNodeRef}
-        id={column.id}
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-          overflowY: "auto",
-          overflowX: "hidden",
-          padding: "4px",
-          overscrollBehavior: "contain",
-
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        {column.tasks.map(task => (
-          <TaskCard key={task.id} task={task} />
-        ))}
       </div>
     </div>
   );
+};
+
+const hexToRgba = (hex: string, alpha: number) => {
+  if (hex === "none" || hex === null) return "none";
+  
+  const cleaned = hex.replace("#", "");
+
+  const r = parseInt(cleaned.slice(0, 2), 16);
+  const g = parseInt(cleaned.slice(2, 4), 16);
+  const b = parseInt(cleaned.slice(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
