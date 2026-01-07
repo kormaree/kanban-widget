@@ -44,3 +44,11 @@ export interface Comment {
   content: string;
   created_at: string;
 }
+
+export interface BoardFilters {
+  assignees: string[];   // member_id
+  priorities: string[];  // low | medium | high
+  columnIds: string[];   // id колонок
+  comments: "with" | "without" | null;
+  date: string | null;
+};

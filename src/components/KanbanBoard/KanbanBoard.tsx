@@ -160,7 +160,7 @@ export const KanbanBoard = ({ boardId }: { boardId: string }) => {
         </DndContext>
       )}
 
-      {activeView === "sort" && (<Filter/>)}
+      {activeView === "sort" && (<Filter boardId={boardId} />)}
       {activeView === "calendar" && (<Calendar/>)}
       {activeView === "stats" && (<StatsView/>)}
       {activeView === "edit" && (<Editor columns={board.columns}/>)}

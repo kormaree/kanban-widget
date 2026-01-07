@@ -75,6 +75,9 @@ export const TaskCard = ({ task }: { task: Task }) => {
           gap: "25px",
           boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.06)",
           cursor: "grab",
+          minWidth: 200,
+          maxWidth: 300,
+          minHeight: 70,
         }}
       >
         <div style={{
@@ -128,20 +131,20 @@ export const TaskCard = ({ task }: { task: Task }) => {
               flexWrap: "wrap",
             }}
           >
-            <span
-              style={{
-                fontSize: "16px",
-                fontWeight: 500,
-                padding: "6px 7px",
-                borderRadius: "5px",
-                backgroundColor: getPriorityColor(task.priority),
-                color: getPriorityColorText(task.priority),
-                display: "flex",
-                alignItems: "center",
-                gap: "3px"
-              }}
-            >
-              {task.priority && (
+              {task.priority  && (
+                <span
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: 500,
+                    padding: "6px 7px",
+                    borderRadius: "5px",
+                    backgroundColor: getPriorityColor(task.priority),
+                    color: getPriorityColorText(task.priority),
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "3px"
+                  }}
+                >
                 <img
                   src={getPriorityColorSVG(task.priority)}
                   style={{
@@ -149,9 +152,8 @@ export const TaskCard = ({ task }: { task: Task }) => {
                     height: "19px",
                   }}
                 />
-              )}
               {getPriorityName(task.priority)}
-            </span>
+            </span>)}
 
             {task.deadline && (() => {
               const expired = isDeadlineExpired(task.deadline);

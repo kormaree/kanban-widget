@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { getBoard } from "../api/board";
-import type { Comment, Assignee, Board, Task, Column } from "../types/board";
+import type { Comment, Assignee, Board, Task, Column, BoardFilters } from "../types/board";
 import type { BoardView } from "../types/boardView";
 
 interface BoardStore {
@@ -23,11 +23,30 @@ interface BoardStore {
     columnId: string,
     updates: Partial<Pick<Column, "title" | "color">>
   ) => void;
+
+  filters: BoardFilters;
+  setFilter: <K extends keyof BoardFilters>(
+    key: K,
+    value: BoardFilters[K]
+  ) => void;
+  toggleFilterValue: (
+    key: "assignees" | "priorities" | "columnIds",
+    value: string
+  ) => void;
+  resetFilters: () => void;
 }
 
 export const useBoardStore = create<BoardStore>((set) => ({
   board: null,
   isLoading: false,
+
+  filters: {
+    assignees: [],
+    priorities: [],
+    columnIds: [],
+    comments: null,
+    date: null,
+  },
 
   activeView: "board",
 
@@ -173,6 +192,41 @@ export const useBoardStore = create<BoardStore>((set) => ({
           ),
         },
       };
+    });
+  },
+  
+  setFilter(key, value) {
+    set(state => ({
+      filters: {
+        ...state.filters,
+        [key]: value,
+      },
+    }));
+  },
+
+  toggleFilterValue(key, value) {
+    set(state => {
+      const list = state.filters[key];
+      return {
+        filters: {
+          ...state.filters,
+          [key]: list.includes(value)
+            ? list.filter(v => v !== value)
+            : [...list, value],
+        },
+      };
+    });
+  },
+
+  resetFilters() {
+    set({
+      filters: {
+        assignees: [],
+        priorities: [],
+        columnIds: [],
+        comments: null,
+        date: null,
+      },
     });
   },
 }));

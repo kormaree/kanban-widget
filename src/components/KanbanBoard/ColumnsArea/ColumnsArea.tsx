@@ -46,7 +46,7 @@ export const ColumnsArea = ({ columns }: { columns: ColumnType[] }) => {
         scrollbarWidth: "none", 
       }}>
         {columns.map((col) => (
-          <Column key={col.id} column={col} />
+          <Column key={col.id} column={col} height={"748px"} />
         ))}
       </div>
       {showArrows && (

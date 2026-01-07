@@ -7,7 +7,7 @@ import { TaskCard } from "./TaskCard";
 import filterIcon from './images/filter.svg';
 import { useDroppable } from "@dnd-kit/core";
 
-export const Column = ({ column }: { column: ColumnType }) => {
+export const Column = ({ column, height }: { column: ColumnType, height: string }) => {
 
   const { setNodeRef } = useDroppable({
     id: column.id,
@@ -63,7 +63,7 @@ export const Column = ({ column }: { column: ColumnType }) => {
       fontWeight: 600,
       flex: "0 0 370px",
       width: "370px",
-      height: "748px",
+      height: height,
       backgroundColor:"#F4F7FC",
       borderRadius: "20px",
       display: "flex",
