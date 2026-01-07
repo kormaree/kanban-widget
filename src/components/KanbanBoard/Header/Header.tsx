@@ -23,12 +23,14 @@ const ICONS: {
   activeIcon: string;
   label: string;
   tooltipWidth: number;
+  colorText: string;
+  activeColor: string;
 }[] = [
-  { view: "board", icon: addIcon, activeIcon: addIconBlue, label: "задачи", tooltipWidth: 64 },
-  { view: "sort", icon: switchIcon, activeIcon: switchIconBlue, label: "сортировка", tooltipWidth: 106 },
-  { view: "calendar", icon: calendarIcon, activeIcon: calendarIconBlue, label: "календарь", tooltipWidth: 97 },
-  { view: "stats", icon: chartIcon, activeIcon: chartIconBlue, label: "статистика", tooltipWidth: 102 },
-  { view: "edit", icon: pencilIcon, activeIcon: pencilIconBlue, label: "редактирование", tooltipWidth: 151 },
+  { view: "board", icon: addIcon, activeIcon: addIconBlue, label: "задачи", tooltipWidth: 64, colorText: "#BCC1C7", activeColor: "#719EEB" },
+  { view: "sort", icon: switchIcon, activeIcon: switchIconBlue, label: "сортировка", tooltipWidth: 106, colorText: "#BCC1C7", activeColor: "#719EEB" },
+  { view: "calendar", icon: calendarIcon, activeIcon: calendarIconBlue, label: "календарь", tooltipWidth: 97, colorText: "#BCC1C7", activeColor: "#719EEB" },
+  { view: "stats", icon: chartIcon, activeIcon: chartIconBlue, label: "статистика", tooltipWidth: 102, colorText: "#BCC1C7", activeColor: "#719EEB" },
+  { view: "edit", icon: pencilIcon, activeIcon: pencilIconBlue, label: "редактирование", tooltipWidth: 151, colorText: "#BCC1C7", activeColor: "#719EEB" },
 ];
 
 export const Header = () => {
@@ -132,8 +134,10 @@ export const Header = () => {
         );
       })}
 
-      {ICONS.map((icon, index) =>
-        positions[index].tooltipVisible ? (
+      {ICONS.map((icon, index) => {
+        const isActive = activeView === icon.view;
+
+        return positions[index].tooltipVisible ? (
           <div
             key={`tooltip-${icon.view}`}
             style={{
@@ -145,7 +149,7 @@ export const Header = () => {
               fontFamily: "'Inter', sans-serif",
               fontWeight: 600,
               fontSize: 18,
-              color: "#BCC1C7",
+              color: isActive ? icon.activeColor : icon.colorText,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -155,8 +159,8 @@ export const Header = () => {
           >
             {icon.label}
           </div>
-        ) : null
-      )}
+        ) : null;
+      })}
     </div>
   );
 };
