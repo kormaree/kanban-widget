@@ -338,6 +338,6 @@ const isDeadlineExpired = (isoDate: string) => {
 
 export const getInitials = (name: string) => {
   const parts = name.trim().split(" ");
-  if (parts.length === 1) return parts[0][0].toUpperCase();
+  if (parts.length === 1) return parts[0][0].toUpperCase() + parts[0][1];
   return (parts[0][0] + parts[1][0]).toUpperCase();
 };

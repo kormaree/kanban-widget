@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
     getBoardStatsSummary,
     getBoardTimeByUser,
     getBoardCompletedByUser,
     getBoardPriorities,
+    getBoardWorkload,
 } from "../../../api/stats";
 import {
     type BoardStatsSummary,
     type BoardTimeByUser,
     type BoardCompletedByUser,
     type BoardPriorities,
+    type BoardWorkload
 } from "../../../types/stats";
 import { getInitials } from "../ColumnsArea/TaskCard";
 import { Doughnut } from "react-chartjs-2";
@@ -18,9 +20,13 @@ import {
     ArcElement,
     Tooltip,
     Legend,
+    CategoryScale,
+    LinearScale,
+    BarElement,
 } from "chart.js";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+
 
 interface StatsViewProps {
     boardId: string;
@@ -33,6 +39,18 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
         useState<BoardCompletedByUser[] | null>(null);
     const [priorities, setPriorities] =
         useState<BoardPriorities | null>(null);
+    const [workload, setWorkload] = useState<
+      BoardWorkload[] | null
+    >(null);
+    const workloadPrepared = useMemo(() => {
+      if (!workload) return [];
+      return workload
+        .map((u) => ({
+          ...u,
+          percent: Math.round(u.workload_ratio * 100),
+        }))
+        .sort((a, b) => b.percent - a.percent);
+    }, [workload]);
 
     useEffect(() => {
         getBoardStatsSummary(boardId).then((response) => {
@@ -46,6 +64,9 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
         });
         getBoardPriorities(boardId).then((response) => {
             setPriorities(response.data);
+        });
+        getBoardWorkload(boardId).then((response) => {
+            setWorkload(response.data);
         });
     }, [boardId]);
 
@@ -377,7 +398,89 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                     </div>
 
                     <div style={{ ...blockBaseStyle, flex: 1 }}>
-                        <div style={titleStyle}>Нагрузка по исполнителям</div>
+                        <div style={{ ...titleStyle, marginBottom: 39}}>Нагрузка по исполнителям</div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 18, fontSize: 16, marginTop: 18 }}>
+                            {(() => {
+                                if (!workload) return <div>Загрузка...</div>;
+                                if (!workloadPrepared.length) return <div>Нет данных</div>;
+                                return workloadPrepared.map((item) => (
+                                    <div
+                                        key={item.name}
+                                        style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                        }}
+                                    >
+                                        <div
+                                            title={item.name}
+                                            style={{
+                                                width: 30,
+                                                height: 30,
+                                                borderRadius: "50%",
+                                                backgroundColor: "#ADADAD",
+                                                color: "#FFFFFF",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                fontSize: 12,
+                                                fontWeight: 700,
+                                                flexShrink: 0,
+                                                marginRight: 18
+                                            }}
+                                        >
+                                            {getInitials(item.name)}
+                                        </div>
+                                        <div style={{
+                                            flex: 1,
+                                            display: "flex",
+                                            alignItems: "center",
+                                            minWidth: 0,
+                                        }}>
+                                            <div
+                                                style={{
+                                                    width: 262,
+                                                    height: 55,
+                                                    background: "#E9ECF3",
+                                                    borderRadius: 8,
+                                                    overflow: "hidden",
+                                                    position: "relative",
+                                                    display: "flex",
+                                                    alignItems: "flex-start",
+                                                }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        background: "#2B4DEC",
+                                                        width: `${item.percent}%`,
+                                                        height: "100%",
+                                                        borderRadius: 12,
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        transition: "width 0.4s",
+                                                        position: "relative",
+                                                    }}
+                                                >
+                                                    <span
+                                                        style={{
+                                                            color: "#fff",
+                                                            fontWeight: 600,
+                                                            fontSize: 14,
+                                                            padding: "0 18px",
+                                                            whiteSpace: "nowrap",
+                                                            position: "absolute",
+                                                            zIndex: 2,
+                                                            transition: "color 0.2s",
+                                                        }}
+                                                    >
+                                                        {item.percent}%
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ));
+                            })()}
+                        </div>
                     </div>
                 </div>
             </div>

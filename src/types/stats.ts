@@ -43,21 +43,11 @@ export interface BoardPriorities {
   items: PriorityStatsItem[];
 }
 
-export interface UserWorkloadItem {
+export interface BoardWorkload {
   user_id: UUID;
   name: string;
-  total_assigned: number;      // всего назначено (в периоде/всегда — зависит от параметров)
-  completed_assigned: number;  // назначено и выполнено
-  active_assigned: number;     // назначено и не выполнено
-  overdue_assigned: number;    // назначено, не выполнено и deadline < now
-  completed_ratio: number;     // completed_assigned / total_assigned (0..1)
-  active_ratio: number;        // active_assigned / total_assigned (0..1)
-}
-
-export interface BoardWorkload {
-  items: UserWorkloadItem[];
-  from?: ISODateTimeString;
-  to?: ISODateTimeString;
+  assigned: number;
+  workload_ratio: number;
 }
 
 export interface BoardTimeByUser {
