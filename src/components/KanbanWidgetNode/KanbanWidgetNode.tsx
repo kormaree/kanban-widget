@@ -9,8 +9,8 @@ export function KanbanWidgetNode({
   data,
   selected,
   dragging,
-}: NodeProps) {
-  const { boardId } = data as KanbanWidgetNodeData;
+}: NodeProps<KanbanWidgetNodeData>) {
+  const { boardId } = data;
 
   return (
     <>

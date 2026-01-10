@@ -162,7 +162,7 @@ export const KanbanBoard = ({ boardId }: { boardId: string }) => {
 
       {activeView === "sort" && (<Filter boardId={boardId} />)}
       {activeView === "calendar" && (<Calendar/>)}
-      {activeView === "stats" && (<StatsView/>)}
+      {activeView === "stats" && (<StatsView boardId={boardId} />)}
       {activeView === "edit" && (<Editor columns={board.columns}/>)}
     </div>
   );
