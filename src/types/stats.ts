@@ -37,8 +37,6 @@ export interface PriorityStatsItem {
   total: number;
   completed: number;
   active: number;
-  completed_ratio: number;
-  active_ratio: number;
 }
 
 export interface BoardPriorities {

@@ -3,13 +3,24 @@ import {
     getBoardStatsSummary,
     getBoardTimeByUser,
     getBoardCompletedByUser,
+    getBoardPriorities,
 } from "../../../api/stats";
 import {
     type BoardStatsSummary,
     type BoardTimeByUser,
     type BoardCompletedByUser,
+    type BoardPriorities,
 } from "../../../types/stats";
 import { getInitials } from "../ColumnsArea/TaskCard";
+import { Doughnut } from "react-chartjs-2";
+import {
+    Chart as ChartJS,
+    ArcElement,
+    Tooltip,
+    Legend,
+} from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface StatsViewProps {
     boardId: string;
@@ -20,6 +31,8 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
     const [timeByUser, setTimeByUser] = useState<BoardTimeByUser[] | null>(null);
     const [completedByUser, setCompletedByUser] =
         useState<BoardCompletedByUser[] | null>(null);
+    const [priorities, setPriorities] =
+        useState<BoardPriorities | null>(null);
 
     useEffect(() => {
         getBoardStatsSummary(boardId).then((response) => {
@@ -31,7 +44,41 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
         getBoardCompletedByUser(boardId).then((response) => {
             setCompletedByUser(response.data);
         });
+        getBoardPriorities(boardId).then((response) => {
+            setPriorities(response.data);
+        });
     }, [boardId]);
+
+    const filteredPriorities = priorities
+        ? priorities.filter((p) => p.priority !== "undefined")
+        : null;
+
+    const PRIORITY_META: Array<{
+        key: "high" | "medium" | "low";
+        label: string;
+        color: string;
+    }> = [
+            { key: "high", label: "высокий", color: "#F79661" },
+            { key: "medium", label: "средний", color: "#F9CDA3" },
+            { key: "low", label: "низкий", color: "#2B4DEC" },
+        ];
+
+    const prioritiesByKey = filteredPriorities
+        ? Object.fromEntries(filteredPriorities.map((p) => [p.priority, p]))
+        : null;
+
+    const prioritiesChartData = filteredPriorities
+        ? {
+            labels: PRIORITY_META.map((m) => m.key),
+            datasets: [
+                {
+                    data: PRIORITY_META.map((m) => prioritiesByKey?.[m.key]?.total ?? 0),
+                    backgroundColor: PRIORITY_META.map((m) => m.color),
+                    borderWidth: 0,
+                },
+            ],
+        }
+        : null;
 
     const wrapperStyle: React.CSSProperties = {
         padding: "55px 24px 55px",
@@ -230,6 +277,103 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                 >
                     <div style={{ ...blockBaseStyle, flex: 1 }}>
                         <div style={titleStyle}>Разделение по приоритетам</div>
+
+                        {prioritiesChartData && prioritiesByKey ? (
+                            <div
+                                style={{
+                                    display: "flex",
+                                    height: "100%",
+                                    paddingTop: 8,
+                                    paddingBottom: 20,
+                                    alignItems: "flex-end",
+                                }}
+                            >
+                                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                                    {PRIORITY_META.map((m) => {
+                                        const total = prioritiesByKey[m.key]?.total ?? 0;
+                                        return (
+                                            <div
+                                                key={m.key}
+                                                style={{
+                                                    display: "flex",
+                                                    flexDirection: "row",
+                                                    alignItems: "center",
+                                                    justifyContent: "space-between",
+                                                    gap: 14,
+                                                    fontSize: 14,
+                                                    fontWeight: 500
+                                                }}
+                                            >
+                                                <div style={{
+                                                    display: "flex"
+                                                }}>
+                                                    <div
+                                                        style={{
+                                                            width: 16,
+                                                            height: 16,
+                                                            borderRadius: "50%",
+                                                            backgroundColor: m.color,
+                                                            marginRight: 10
+                                                        }}
+                                                    />
+                                                    <div style={{ color: "rgba(0,0,0,0.5)"}}>
+                                                        {m.label}
+                                                    </div>
+                                                </div>
+                                                <div style={{ color: "#000"}}>
+                                                    {total} з.
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div
+                                    style={{
+                                        flex: 1,
+                                        display: "flex",
+                                        alignItems: "flex-end",
+                                        justifyContent: "center",
+                                        height: "100%",
+                                    }}
+                                >
+                                    <div style={{ width: 210, height: 210 }}>
+                                        <Doughnut
+                                            data={prioritiesChartData}
+                                            options={{
+                                              responsive: true,
+                                              maintainAspectRatio: false,
+                                              plugins: {
+                                                legend: { display: false },
+                                                tooltip: {
+                                                  callbacks: {
+                                                    label: (ctx) => {
+                                                      const key = String(ctx.label) as "high" | "medium" | "low";
+                                                      const meta = PRIORITY_META.find((x) => x.key === key);
+
+                                                      const value = typeof ctx.parsed === "number" ? ctx.parsed : 0;
+
+                                                      const totalAll = PRIORITY_META.reduce((sum, m) => {
+                                                        return sum + (prioritiesByKey?.[m.key]?.total ?? 0);
+                                                      }, 0);
+
+                                                      const percent =
+                                                        totalAll > 0 ? Math.round((value / totalAll) * 100) : 0;
+
+                                                      return `${meta?.label}: (${percent}%)`;
+                                                    },
+                                                    title: () => "",
+                                                  },
+                                                },
+                                              },
+                                              cutout: "55%",
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div>Загрузка...</div>
+                        )}
                     </div>
 
                     <div style={{ ...blockBaseStyle, flex: 1 }}>

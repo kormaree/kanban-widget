@@ -20,7 +20,7 @@ export function getBoardProductivity(
   return http.get<BoardProductivity>(`/boards/${boardId}/stats/productivity`, { params });
 }
 
-export function getBoardPrioritiesStats(boardId: string) {
+export function getBoardPriorities(boardId: string) {
   return http.get<BoardPriorities>(`/boards/${boardId}/stats/priorities`);
 }
 
