@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
+import { DayPicker } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
+import { subDays } from "date-fns";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
+import "react-day-picker/dist/style.css";
 import {
     getBoardStatsSummary,
     getBoardTimeByUser,
@@ -31,7 +37,7 @@ import {
 } from "chart.js";
 
 import "chartjs-adapter-date-fns";
-import calendarIcon from "./Icon/calendar.svg";
+import calendarIcon from "./Icon/calendar.svg?url";
 
 ChartJS.register(
     ArcElement,
@@ -52,17 +58,39 @@ interface StatsViewProps {
 }
 
 export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
-    const today = new Date();
-    const dateTo = today.toISOString().slice(0, 10);
+    const [calendarOpen, setCalendarOpen] = useState(false);
+    const calendarRef = useRef<HTMLDivElement | null>(null);
+    const calendarToggleRef = useRef<HTMLButtonElement | null>(null);
 
-    const dateFrom = new Date(today);
-    dateFrom.setDate(today.getDate() - 14);
+    const [range, setRange] = useState<DateRange>({
+      from: subDays(new Date(), 14),
+      to: new Date(),
+    });
+    const [activePreset, setActivePreset] = useState<
+      "30d" | "week" | "90d" | "all" | null
+    >(null);
+    const [month, setMonth] = useState<Date>(range.from ?? new Date());
 
-    const productivityParams = {
-      date_from: dateFrom.toISOString().slice(0, 10),
-      date_to: dateTo,
-      step: "day" as const,
+    const handleRangeSelect = (next: DateRange | undefined) => {
+      if (!next) return;
+
+      if (next.from && !next.to) {
+        setRange({ from: next.from, to: undefined });
+        setMonth(next.from);
+        return;
+      }
+
+      if (next.from && next.to) {
+        setRange(next);
+        setMonth(next.to);
+      }
     };
+
+    const productivityParams = useMemo(() => ({
+      date_from: range.from.toISOString().slice(0, 10),
+      date_to: range.to.toISOString().slice(0, 10),
+      step: "day" as const,
+    }), [range]);
     const [summary, setSummary] = useState<BoardStatsSummary | null>(null);
     const [timeByUser, setTimeByUser] = useState<BoardTimeByUser[] | null>(null);
     const [completedByUser, setCompletedByUser] =
@@ -89,7 +117,7 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
         .sort((a, b) => b.percent - a.percent);
     }, [workload]);
 
-    const USE_PRODUCTIVITY_MOCK = true;
+    const USE_PRODUCTIVITY_MOCK = false;
 
     const MOCK_PRODUCTIVITY = [
         { date: "2025-10-28", completed_ratio: 0.19, active_ratio: 0.49 },
@@ -104,6 +132,60 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
         { date: "2025-11-24", completed_ratio: 0.46, active_ratio: 0.39 },
         { date: "2025-11-27", completed_ratio: 0.32, active_ratio: 0.35 },
     ];
+
+    const applyPreset = (preset: "30d" | "week" | "90d" | "all") => {
+      if (activePreset === preset) {
+        setActivePreset(null);
+        return;
+      }
+
+      const to = new Date();
+      const from = new Date();
+
+      switch (preset) {
+        case "30d":
+          from.setDate(to.getDate() - 30);
+          break;
+        case "90d":
+          from.setDate(to.getDate() - 90);
+          break;
+        case "week": {
+          const day = to.getDay() || 7;
+          from.setDate(to.getDate() - day + 1);
+          break;
+        }
+        case "all":
+          from.setFullYear(2025);
+          break;
+      }
+
+      setRange({ from, to });
+      setActivePreset(preset);
+    };
+
+    useEffect(() => {
+      if (!calendarOpen) return;
+
+      const handleClickOutside = (e: MouseEvent) => {
+        const targetNode = e.target as Node;
+
+        if (calendarToggleRef.current?.contains(targetNode)) {
+          return;
+        }
+
+        if (
+          calendarRef.current &&
+          !calendarRef.current.contains(targetNode)
+        ) {
+          setCalendarOpen(false);
+        }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [calendarOpen]);
 
     useEffect(() => {
         getBoardStatsSummary(boardId).then((response) => {
@@ -121,16 +203,14 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
         getBoardWorkload(boardId).then((response) => {
             setWorkload(response.data);
         });
-        getBoardProductivityTimeline(boardId, productivityParams).then((response) => {
-            if (USE_PRODUCTIVITY_MOCK) {
-                setProductivity(MOCK_PRODUCTIVITY);
-            } else {
-                getBoardProductivityTimeline(boardId, productivityParams).then((response) => {
-                    setProductivity(response.data);
+        if (USE_PRODUCTIVITY_MOCK) {
+            setProductivity(MOCK_PRODUCTIVITY);
+        } else {
+            getBoardProductivityTimeline(boardId, productivityParams).then((response) => {
+                setProductivity(response.data);
             });
-            }
-        });
-    }, [boardId]);
+        }
+    }, [boardId, productivityParams]);
 
     const filteredPriorities = priorities
         ? priorities.filter((p) => p.priority && p.priority !== "undefined")
@@ -513,30 +593,292 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                             </div>
                           </div>
 
-                          <button
-                            style={{
-                              background: "none",
-                              border: "none",
-                              color: "#3789D5",
-                              fontSize: 16,
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 8,
-                              padding: 0,
-                              marginTop: 7
-                            }}
-                          >
-                            редактировать даты
-                            <span style={{ fontSize: 18 }}>
-                              <img
-                                src={calendarIcon}
-                                alt="calendar"
-                                style={{ display: "block" }}
-                              />
-                            </span>
-                          </button>
+                          <div style={{ position: "relative" }}>
+                            <button
+                              ref={calendarToggleRef}
+                              onClick={() => setCalendarOpen(v => !v)}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "#3789D5",
+                                fontSize: 16,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                padding: 0,
+                                marginTop: 7
+                              }}
+                            >
+                              редактировать даты
+                              <span style={{ fontSize: 18 }}>
+                                <img
+                                  src={calendarIcon}
+                                  alt="calendar"
+                                  style={{ display: "block" }}
+                                />
+                              </span>
+                            </button>
+                            {calendarOpen && (
+                              <div
+                                ref={calendarRef}
+                                style={{
+                                  position: "absolute",
+                                  right: 0,
+                                  bottom: "100%",
+                                  marginBottom: 12,
+                                  background: "#fff",
+                                  borderRadius: 20,
+                                  padding: 24,
+                                  boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+                                  zIndex: 20,
+                                  boxSizing: "border-box",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  justifyContent: "space-between",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    marginBottom: 36,
+                                    paddingBottom: 12,
+                                    borderBottom: "1px solid #E3E5EF",
+                                    marginLeft: -24,
+                                    marginRight: -24,
+                                    paddingLeft: 24,
+                                    paddingRight: 24,
+                                    fontWeight: 600
+                                  }}
+                                >
+                                  Календарь
+                                </div>
+
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    marginBottom: 8,
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      fontSize: 16,
+                                      fontWeight: 700,
+                                      color: "#3789D5",
+                                      marginLeft: 16
+                                    }}
+                                  >
+                                    {(() => {
+                                      const label = format(range.from ?? new Date(), "LLLL yyyy", { locale: ru });
+                                      return label.charAt(0).toUpperCase() + label.slice(1);
+                                    })()}
+                                  </div>
+
+                                  <div style={{ display: "flex", gap: 12 }}>
+                                    <button
+                                      onClick={() =>
+                                        setMonth(m => new Date(m.getFullYear(), m.getMonth() - 1, 1))
+                                      }
+                                      style={{
+                                        background: "none",
+                                        border: "none",
+                                        fontSize: 22,
+                                        cursor: "pointer",
+                                        lineHeight: 1,
+                                      }}
+                                    >
+                                      ‹
+                                    </button>
+
+                                    <button
+                                      onClick={() =>
+                                        setMonth(m => new Date(m.getFullYear(), m.getMonth() + 1, 1))
+                                      }
+                                      style={{
+                                        background: "none",
+                                        border: "none",
+                                        fontSize: 22,
+                                        cursor: "pointer",
+                                        lineHeight: 1,
+                                      }}
+                                    >
+                                      ›
+                                    </button>
+                                  </div>
+                                </div>
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                  <DayPicker
+                                    mode="range"
+                                    selected={range}
+                                    month={month}
+                                    onMonthChange={setMonth}
+                                    onSelect={handleRangeSelect}
+                                    locale={ru}
+                                    style={{ width: "100%", height: "100%", flex: 1 }}
+                                    styles={{
+                                      month: { width: "100%" },
+                                      table: { width: "100%" },
+                                      tbody: { width: "100%" },
+                                      day: { background: "transparent" },
+                                      nav_button: {
+                                        color: "#000",
+                                      },
+                                    }}
+                                    modifiersStyles={{
+                                      selected: {
+                                        backgroundColor: "transparent",
+                                        color: "#3789D5",
+                                        fontWeight: 600,
+                                      },
+                                      range_start: {
+                                        backgroundColor: "transparent",
+                                        color: "#3789D5",
+                                        fontWeight: 600,
+                                      },
+                                      range_end: {
+                                        backgroundColor: "transparent",
+                                        color: "#3789D5",
+                                        fontWeight: 600,
+                                      },
+                                      range_middle: {
+                                        backgroundColor: "transparent",
+                                        color: "#3789D5",
+                                        fontWeight: 600,
+                                      },
+                                    }}
+                                    classNames={{
+                                      day: "rdp-day-custom",
+                                      day_selected: "rdp-day-custom-selected",
+                                      day_range_start: "rdp-day-custom-start",
+                                      day_range_end: "rdp-day-custom-end",
+                                      day_range_middle: "rdp-day-custom-middle",
+                                    }}
+                                    components={{
+                                      CaptionLabel: () => null,
+                                    }}
+                                    hideNavigation
+                                  />
+                                </div>
+                                <style>{`
+                                  .rdp-weekday {
+                                    font-size: 16px;
+                                    font-weight: 500;
+                                    color: #333333;
+                                    text-transform: lowercase;
+                                    padding-bottom: 6px;
+                                  }
+
+                                  .rdp-day_button {
+                                    background: none !important;
+                                    border: none !important;
+                                    box-shadow: none !important;
+                                    outline: none !important;
+                                    padding: 0 !important;
+                                    margin: 0 !important;
+                                    width: 32px;
+                                    height: 32px;
+                                    font-size: 16px;
+                                    font-weight: 500;
+                                    cursor: pointer;
+                                    color: inherit;
+                                  }
+
+                                  .rdp-button_next,
+                                  .rdp-button_previous {
+                                    background: none !important;
+                                    border: none !important;
+                                    box-shadow: none !important;
+                                    padding: 4px;
+                                    cursor: pointer;
+                                  }
+
+                                  .rdp-day,
+                                  .rdp-day_selected,
+                                  .rdp-day_range_start,
+                                  .rdp-day_range_end,
+                                  .rdp-day_range_middle {
+                                    background: transparent !important;
+                                    box-shadow: none !important;
+                                    outline: none !important;
+                                  }
+
+                                  .rdp-day_selected .rdp-day_button,
+                                  .rdp-day_range_start .rdp-day_button,
+                                  .rdp-day_range_end .rdp-day_button,
+                                  .rdp-day_range_middle .rdp-day_button {
+                                    color: #45A6FF !important;
+                                    font-weight: 500;
+                                  }
+                                  .rdp {
+                                    height: 100%;
+                                  }
+                                  .rdp-months {
+                                    height: 100%;
+                                  }
+                                  .rdp-month {
+                                    height: 100%;
+                                  }
+                                  /* скрываем стандартную подпись месяца DayPicker */
+                                  .rdp-caption {
+                                    display: none !important;
+                                  }
+                                `}</style>
+                                <div
+                                  style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "auto auto",
+                                    rowGap: 12,
+                                    columnGap: 12,
+                                    marginTop: 16,
+                                    fontSize: 16,
+                                    color: "#333",
+                                    justifyContent: "start",
+                                  }}
+                                >
+                                  <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                                    <input
+                                      type="checkbox"
+                                      checked={activePreset === "30d"}
+                                      onChange={() => applyPreset("30d")}
+                                    />
+                                    30 дней
+                                  </label>
+
+                                  <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                                    <input
+                                      type="checkbox"
+                                      checked={activePreset === "week"}
+                                      onChange={() => applyPreset("week")}
+                                    />
+                                    эта неделя
+                                  </label>
+
+                                  <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                                    <input
+                                      type="checkbox"
+                                      checked={activePreset === "90d"}
+                                      onChange={() => applyPreset("90d")}
+                                    />
+                                    90 дней
+                                  </label>
+
+                                  <label style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                                    <input
+                                      type="checkbox"
+                                      checked={activePreset === "all"}
+                                      onChange={() => applyPreset("all")}
+                                    />
+                                    все время
+                                  </label>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ) : (
