@@ -32,25 +32,30 @@ export const Column = ({ column, height }: { column: ColumnType, height: string 
 
       if (!board) return;
 
-    updateColumns(
-      board.columns.map(col => {
-        if (col.id !== column.id) return col;
+      updateColumns(
+        board.columns.map(col => {
+          if (col.id !== column.id) return col;
 
-        const minOrder =
-          col.tasks.length > 0
-            ? Math.min(...col.tasks.map(t => t.display_order))
-            : 0;
+          const minOrder =
+            col.tasks.length > 0
+              ? Math.min(...col.tasks.map(t => t.display_order))
+              : 0;
 
-        return {
-          ...col,
-          tasks: [
-            { ...newTask, display_order: minOrder - 1 },
-            ...col.tasks,
-          ],
-        };
-      })
-    );
-    
+          return {
+            ...col,
+            tasks: [
+              {
+                ...newTask,
+                board_id: board.id,
+                assignees: [],
+                comments: [],
+                display_order: minOrder - 1,
+              },
+              ...col.tasks,
+            ],
+          };
+        })
+      );
     } finally {
       setIsCreating(false);
       setTitle("");
