@@ -5,6 +5,7 @@ import {
     getBoardCompletedByUser,
     getBoardPriorities,
     getBoardWorkload,
+    getBoardProductivityTimeline
 } from "../../../api/stats";
 import {
     type BoardStatsSummary,
@@ -14,7 +15,7 @@ import {
     type BoardWorkload
 } from "../../../types/stats";
 import { getInitials } from "../ColumnsArea/TaskCard";
-import { Doughnut } from "react-chartjs-2";
+import { Doughnut, Line } from "react-chartjs-2";
 import {
     Chart as ChartJS,
     ArcElement,
@@ -23,9 +24,27 @@ import {
     CategoryScale,
     LinearScale,
     BarElement,
+    PointElement,
+    LineElement,
+    Filler,
+    TimeScale,
 } from "chart.js";
 
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
+import "chartjs-adapter-date-fns";
+import calendarIcon from "./Icon/calendar.svg";
+
+ChartJS.register(
+    ArcElement,
+    Tooltip,
+    Legend,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    PointElement,
+    LineElement,
+    Filler,
+    TimeScale
+);
 
 
 interface StatsViewProps {
@@ -33,6 +52,17 @@ interface StatsViewProps {
 }
 
 export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
+    const today = new Date();
+    const dateTo = today.toISOString().slice(0, 10);
+
+    const dateFrom = new Date(today);
+    dateFrom.setDate(today.getDate() - 14);
+
+    const productivityParams = {
+      date_from: dateFrom.toISOString().slice(0, 10),
+      date_to: dateTo,
+      step: "day" as const,
+    };
     const [summary, setSummary] = useState<BoardStatsSummary | null>(null);
     const [timeByUser, setTimeByUser] = useState<BoardTimeByUser[] | null>(null);
     const [completedByUser, setCompletedByUser] =
@@ -41,6 +71,13 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
         useState<BoardPriorities | null>(null);
     const [workload, setWorkload] = useState<
       BoardWorkload[] | null
+    >(null);
+    const [productivity, setProductivity] = useState<
+      {
+        date: string;
+        completed_ratio: number;
+        active_ratio: number;
+      }[] | null
     >(null);
     const workloadPrepared = useMemo(() => {
       if (!workload) return [];
@@ -51,6 +88,22 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
         }))
         .sort((a, b) => b.percent - a.percent);
     }, [workload]);
+
+    const USE_PRODUCTIVITY_MOCK = true;
+
+    const MOCK_PRODUCTIVITY = [
+        { date: "2025-10-28", completed_ratio: 0.19, active_ratio: 0.49 },
+        { date: "2025-10-31", completed_ratio: 0.27, active_ratio: 0.55 },
+        { date: "2025-11-03", completed_ratio: 0.22, active_ratio: 0.64 },
+        { date: "2025-11-06", completed_ratio: 0.33, active_ratio: 0.58 },
+        { date: "2025-11-09", completed_ratio: 0.27, active_ratio: 0.46 },
+        { date: "2025-11-12", completed_ratio: 0.35, active_ratio: 0.52 },
+        { date: "2025-11-15", completed_ratio: 0.45, active_ratio: 0.44 },
+        { date: "2025-11-18", completed_ratio: 0.58, active_ratio: 0.41 },
+        { date: "2025-11-21", completed_ratio: 0.49, active_ratio: 0.42 },
+        { date: "2025-11-24", completed_ratio: 0.46, active_ratio: 0.39 },
+        { date: "2025-11-27", completed_ratio: 0.32, active_ratio: 0.35 },
+    ];
 
     useEffect(() => {
         getBoardStatsSummary(boardId).then((response) => {
@@ -68,10 +121,19 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
         getBoardWorkload(boardId).then((response) => {
             setWorkload(response.data);
         });
+        getBoardProductivityTimeline(boardId, productivityParams).then((response) => {
+            if (USE_PRODUCTIVITY_MOCK) {
+                setProductivity(MOCK_PRODUCTIVITY);
+            } else {
+                getBoardProductivityTimeline(boardId, productivityParams).then((response) => {
+                    setProductivity(response.data);
+            });
+            }
+        });
     }, [boardId]);
 
     const filteredPriorities = priorities
-        ? priorities.filter((p) => p.priority !== "undefined")
+        ? priorities.filter((p) => p.priority && p.priority !== "undefined")
         : null;
 
     const PRIORITY_META: Array<{
@@ -284,8 +346,202 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                         )}
                     </div>
                 </div>
-                <div style={{ ...blockBaseStyle, gridColumn: 2, gridRow: "1 / 4" }}>
-                    <div style={titleStyle}>График производительности</div>
+                <div style={{ ...blockBaseStyle, gridColumn: 2, gridRow: "1 / 4", padding: '28px 58px' }}>
+                    <div style={{ ...titleStyle, marginBottom: 23 }}>График производительности</div>
+                    <div
+                        style={{
+                            fontSize: 14,
+                            fontWeight: 500,
+                            color: "rgba(0, 0, 0, 0.5)",
+                            maxWidth: 520,
+                            lineHeight: "20px",
+                            marginBottom: 4
+                        }}
+                    >
+                        Графики показывают, какая часть от общего числа задач уже выполнена, а какая — находится в работе
+                    </div>
+                    {productivity ? (
+                      <div style={{ height: 520, minHeight: 360, marginTop: 4, paddingBottom: 12 }}>
+                        <Line
+                          data={{
+                            datasets: [
+                              {
+                                label: "выполненные",
+                                data: productivity.map(p => ({
+                                  x: p.date,
+                                  y: p.completed_ratio,
+                                })),
+                                borderColor: "#314CFF",
+                                borderWidth: 4,
+                                backgroundColor: (context) => {
+                                  const { ctx, chartArea } = context.chart;
+                                  if (!chartArea) return "rgba(43, 77, 236, 0.3)";
+                                  const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                                  gradient.addColorStop(0, "#3549F8");
+                                  gradient.addColorStop(1, "rgba(43, 77, 236, 0)");
+                                  return gradient;
+                                },
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 0,
+                              },
+                              {
+                                label: "в процессе",
+                                data: productivity.map(p => ({
+                                  x: p.date,
+                                  y: p.active_ratio,
+                                })),
+                                borderColor: "#FF7E5C",
+                                borderWidth: 4,
+                                backgroundColor: (context) => {
+                                  const { ctx, chartArea } = context.chart;
+                                  if (!chartArea) return "rgba(247, 150, 97, 0.3)";
+                                  const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                                  gradient.addColorStop(0, "#FF7E5C");
+                                  gradient.addColorStop(1, "rgba(217, 217, 217, 0)");
+                                  return gradient;
+                                },
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 0,
+                              },
+                            ],
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            layout: {
+                              padding: {
+                                top: 12,
+                              },
+                            },
+                            interaction: {
+                              intersect: false,
+                              mode: "index",
+                            },
+                            plugins: {
+                              legend: {
+                                display: false,
+                              },
+                              tooltip: {
+                                callbacks: {
+                                  label: (ctx) =>
+                                    `${ctx.dataset.label}: ${Math.round(
+                                      Number(ctx.parsed.y) * 100
+                                    )}%`,
+                                },
+                              },
+                            },
+                            scales: {
+                              x: {
+                                type: "time",
+                                time: {
+                                  unit: "day",
+                                  displayFormats: {
+                                    day: "dd.MM.yy",
+                                  },
+                                  tooltipFormat: "dd.MM.yy",
+                                },
+                                grid: {
+                                  display: false,
+                                },
+                                ticks: {
+                                    autoSkip: true,
+                                    maxTicksLimit: 7,
+                                    maxRotation: 0,
+                                    minRotation: 0,
+                                    padding: 8,
+                                    color: '#000',
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                              },
+                              y: {
+                                min: 0,
+                                max: 1.05,
+                                grace: "10%",
+                                ticks: {
+                                  stepSize: 0.1,
+                                  padding: 8,
+                                  callback: (v) => Number(v).toFixed(1),
+                                  color: '#000',
+                                    font: {
+                                        size: 11
+                                    }
+                                },
+                              },
+                            },
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            marginTop: 15,
+                            padding: '0px 40px'
+                          }}
+                        >
+                          <div style={{ display: "flex", gap: 24 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                              <div
+                                style={{
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: "50%",
+                                  backgroundColor: "#3549F8",
+                                }}
+                              />
+                              <span style={{ fontSize: 12, color: "rgba(0,0,0,0.5)" }}>
+                                выполненные
+                              </span>
+                            </div>
+
+                            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                              <div
+                                style={{
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: "50%",
+                                  backgroundColor: "#FF7E5C",
+                                }}
+                              />
+                              <span style={{ fontSize: 12, color: "rgba(0,0,0,0.5)" }}>
+                                в процессе
+                              </span>
+                            </div>
+                          </div>
+
+                          <button
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#3789D5",
+                              fontSize: 16,
+                              fontWeight: 600,
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              padding: 0,
+                              marginTop: 7
+                            }}
+                          >
+                            редактировать даты
+                            <span style={{ fontSize: 18 }}>
+                              <img
+                                src={calendarIcon}
+                                alt="calendar"
+                                style={{ display: "block" }}
+                              />
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>Загрузка...</div>
+                    )}
                 </div>
                 <div
                     style={{

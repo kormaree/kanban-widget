@@ -9,12 +9,8 @@ export interface BoardStatsSummary {
   overdue: number;
 }
 
-export interface ProductivityPoint {
-  period: ISODateTimeString;
-  count: number;
-}
-
-export interface ProductivityTotals {
+export interface ProductivityTimelinePoint {
+  date: ISODateTimeString;
   total: number;
   completed: number;
   active: number;
@@ -22,12 +18,18 @@ export interface ProductivityTotals {
   active_ratio: number;
 }
 
-export interface BoardProductivity {
-  totals: ProductivityTotals;
-  series: ProductivityPoint[];
-  group: "day" | "week" | "month";
-  from?: ISODateTimeString;
-  to?: ISODateTimeString;
+export type ProductivityGroup = "day" | "week";
+
+export interface BoardProductivityTimeline {
+  points: ProductivityTimelinePoint[];
+}
+
+export interface BoardProductivitySummary {
+  total: number;
+  completed: number;
+  active: number;
+  completed_ratio: number;
+  active_ratio: number;
 }
 
 export type TaskPriority = "low" | "medium" | "high" | "undefined";

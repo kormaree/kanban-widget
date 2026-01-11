@@ -13,11 +13,22 @@ export function getBoardStatsSummary(boardId: string) {
   return http.get<BoardStatsSummary>(`/boards/${boardId}/stats/summary`);
 }
 
-export function getBoardProductivity(
+export function getBoardProductivitySummary(boardId: string) {
+  return http.get<BoardProductivity>(`/boards/${boardId}/stats/productivity`);
+}
+
+export function getBoardProductivityTimeline(
   boardId: string,
-  params?: { from?: string; to?: string; group?: "day" | "week" | "month" }
+  params: {
+    date_from: string;
+    date_to: string;
+    step?: "day" | "week";
+  }
 ) {
-  return http.get<BoardProductivity>(`/boards/${boardId}/stats/productivity`, { params });
+  return http.get<BoardProductivity>(
+    `/boards/${boardId}/stats/productivity/timeline`,
+    { params }
+  );
 }
 
 export function getBoardPriorities(boardId: string) {
