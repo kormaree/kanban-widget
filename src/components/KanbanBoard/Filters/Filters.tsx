@@ -277,7 +277,18 @@ export const Filter = ({ boardId }: { boardId: string }) => {
               ))}
           </div>
 
-          <div style={{display: "flex", gap: 14}}>
+          <div
+            style={
+              showColumns
+                ? { display: "flex", gap: 14 }
+                : {
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gap: 14,
+                    width: "1231px",
+                  }
+            }
+          >
             {showColumns ? (
               filteredColumns
                 ?.filter(col => filters.columnIds.includes(col.id))
