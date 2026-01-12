@@ -14,7 +14,6 @@ import { snapCenterToCursor } from "@dnd-kit/modifiers";
 
 import { Header } from "./Header/Header";
 import { Filter } from "./Filters/Filters"
-import { Calendar } from "./Calendar/Calendar";
 import { StatsView } from "./StatsView/StatsView";
 import { Editor } from "./Editor/Editor";
 import { ColumnsArea } from "./ColumnsArea/ColumnsArea";
@@ -129,7 +128,7 @@ export const KanbanBoard = ({ boardId }: { boardId: string }) => {
     });
   };
 
-  if (!board) return <div>Загрузка...</div>;
+  if (!board) return <div>Загрузка...</div>; //TODO:
 
   const taskIds = board.columns.flatMap(col =>
     col.tasks.map(task => task.id)
@@ -161,7 +160,6 @@ export const KanbanBoard = ({ boardId }: { boardId: string }) => {
       )}
 
       {activeView === "sort" && (<Filter boardId={boardId} />)}
-      {activeView === "calendar" && (<Calendar/>)}
       {activeView === "stats" && (<StatsView boardId={boardId} />)}
       {activeView === "edit" && (<Editor columns={board.columns}/>)}
     </div>

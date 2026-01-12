@@ -28,7 +28,6 @@ const ICONS: {
 }[] = [
   { view: "board", icon: addIcon, activeIcon: addIconBlue, label: "задачи", tooltipWidth: 64, colorText: "#BCC1C7", activeColor: "#719EEB" },
   { view: "sort", icon: switchIcon, activeIcon: switchIconBlue, label: "сортировка", tooltipWidth: 106, colorText: "#BCC1C7", activeColor: "#719EEB" },
-  { view: "calendar", icon: calendarIcon, activeIcon: calendarIconBlue, label: "календарь", tooltipWidth: 97, colorText: "#BCC1C7", activeColor: "#719EEB" },
   { view: "stats", icon: chartIcon, activeIcon: chartIconBlue, label: "статистика", tooltipWidth: 102, colorText: "#BCC1C7", activeColor: "#719EEB" },
   { view: "edit", icon: pencilIcon, activeIcon: pencilIconBlue, label: "редактирование", tooltipWidth: 151, colorText: "#BCC1C7", activeColor: "#719EEB" },
 ];
