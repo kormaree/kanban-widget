@@ -128,7 +128,39 @@ export const KanbanBoard = ({ boardId }: { boardId: string }) => {
     });
   };
 
-  if (!board) return <div>Загрузка...</div>; //TODO:
+if (!board) {
+  return (
+    <div
+      style={{
+        marginTop: '10%',
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        style={{
+          width: 48,
+          height: 48,
+          border: "4px solid #e5e7eb",
+          borderTopColor: "#6366f1",
+          borderRadius: "50%",
+          animation: "spin 0.9s linear infinite",
+        }}
+      />
+
+      <style>
+        {`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}
+      </style>
+    </div>
+  );
+}
 
   const taskIds = board.columns.flatMap(col =>
     col.tasks.map(task => task.id)

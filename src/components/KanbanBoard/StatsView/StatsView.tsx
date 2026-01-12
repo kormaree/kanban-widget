@@ -325,7 +325,14 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                             </div>
                         </div>
                     ) : (
-                        <div>Загрузка...</div>
+                        <div
+                          style={{
+                            width: "100%",
+                            height: 24,
+                            background: "#EEF1F6",
+                            borderRadius: 6,
+                          }}
+                        />
                     )}
                 </div>
                 <div style={{ ...blockBaseStyle, gridColumn: 1, gridRow: 2 }}>
@@ -371,7 +378,14 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                                 </div>
                             ))
                         ) : (
-                            <div>Загрузка...</div>
+                            <div
+                              style={{
+                                width: "100%",
+                                height: 24,
+                                background: "#EEF1F6",
+                                borderRadius: 6,
+                              }}
+                            />
                         )}
                     </div>
                 </div>
@@ -422,7 +436,14 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                                 </div>
                             ))
                         ) : (
-                            <div>Загрузка...</div>
+                            <div
+                              style={{
+                                width: "100%",
+                                height: 24,
+                                background: "#EEF1F6",
+                                borderRadius: 6,
+                              }}
+                            />
                         )}
                     </div>
                 </div>
@@ -823,7 +844,6 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                                   .rdp-month {
                                     height: 100%;
                                   }
-                                  /* скрываем стандартную подпись месяца DayPicker */
                                   .rdp-caption {
                                     display: none !important;
                                   }
@@ -882,7 +902,14 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                         </div>
                       </div>
                     ) : (
-                      <div>Загрузка...</div>
+                      <div
+                        style={{
+                          width: "100%",
+                          height: 520,
+                          background: "#EEF1F6",
+                          borderRadius: 12,
+                        }}
+                      />
                     )}
                 </div>
                 <div
@@ -991,7 +1018,15 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                                 </div>
                             </div>
                         ) : (
-                            <div>Загрузка...</div>
+                            <div
+                              style={{
+                                width: 210,
+                                height: 210,
+                                borderRadius: "50%",
+                                background: "#EEF1F6",
+                                margin: "0 auto",
+                              }}
+                            />
                         )}
                     </div>
 
@@ -999,7 +1034,16 @@ export const StatsView: React.FC<StatsViewProps> = ({ boardId }) => {
                         <div style={{ ...titleStyle, marginBottom: 39}}>Нагрузка по исполнителям</div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 18, fontSize: 16, marginTop: 18 }}>
                             {(() => {
-                                if (!workload) return <div>Загрузка...</div>;
+                                if (!workload) return (
+                                  <div
+                                    style={{
+                                      width: "100%",
+                                      height: 24,
+                                      background: "#EEF1F6",
+                                      borderRadius: 6,
+                                    }}
+                                  />
+                                );
                                 if (!workloadPrepared.length) return <div>Нет данных</div>;
                                 return workloadPrepared.map((item) => (
                                     <div
