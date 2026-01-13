@@ -1,19 +1,23 @@
 {
   "name": "kanban-widget",
-  "version": "0.0.0",
+  "version": "0.1.4",
   "type": "module",
   "main": "./dist/kanban-widget.es.js",
   "types": "./types.d.ts",
-  "files": [
-    "dist"
-  ],
+  "exports": {
+    ".": {
+      "import": "./dist/kanban-widget.es.js",
+      "types": "./types.d.ts"
+    }
+  },
+  "files": ["dist", "types.d.ts"],
   "scripts": {
     "build": "vite build"
   },
   "peerDependencies": {
-    "@xyflow/react": "^12.10.0",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "@xyflow/react": "^12.6.0",
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
