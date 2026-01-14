@@ -128,8 +128,8 @@ export function KanbanWidgetNode(props: NodeProps) {
       <NodeResizer
         handleStyle={{ width: 8, height: 8 }}
         isVisible={Boolean(selected)}
-        minWidth={800}
-        minHeight={1024}
+        // minWidth={800}
+        // minHeight={1024}
       />
 
       <div
@@ -139,8 +139,8 @@ export function KanbanWidgetNode(props: NodeProps) {
         style={{
           width: props.width ?? 1620,
           height: props.height ?? 1024,
-          minWidth: 1620,
-          minHeight: 1024,
+          // minWidth: 1620,
+          // minHeight: 1024,
           background: selected ? "rgba(205, 221, 233, 0.4)" : "rgba(205, 221, 233, 0.4)",
           borderRadius: 20,
           overflow: "hidden",
